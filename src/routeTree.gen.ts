@@ -9,38 +9,228 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as PedidosRouteImport } from './routes/pedidos'
+import { Route as PdvRouteImport } from './routes/pdv'
+import { Route as MesasRouteImport } from './routes/mesas'
+import { Route as CozinhaRouteImport } from './routes/cozinha'
+import { Route as ClientesRouteImport } from './routes/clientes'
+import { Route as CardapioRouteImport } from './routes/cardapio'
+import { Route as CaixaRouteImport } from './routes/caixa'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReciboIdRouteImport } from './routes/recibo.$id'
+import { Route as PedidoIdRouteImport } from './routes/pedido.$id'
 
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidosRoute = PedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PdvRoute = PdvRouteImport.update({
+  id: '/pdv',
+  path: '/pdv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesasRoute = MesasRouteImport.update({
+  id: '/mesas',
+  path: '/mesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CozinhaRoute = CozinhaRouteImport.update({
+  id: '/cozinha',
+  path: '/cozinha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesRoute = ClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CardapioRoute = CardapioRouteImport.update({
+  id: '/cardapio',
+  path: '/cardapio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaixaRoute = CaixaRouteImport.update({
+  id: '/caixa',
+  path: '/caixa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReciboIdRoute = ReciboIdRouteImport.update({
+  id: '/recibo/$id',
+  path: '/recibo/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidoIdRoute = PedidoIdRouteImport.update({
+  id: '/pedido/$id',
+  path: '/pedido/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/caixa': typeof CaixaRoute
+  '/cardapio': typeof CardapioRoute
+  '/clientes': typeof ClientesRoute
+  '/cozinha': typeof CozinhaRoute
+  '/mesas': typeof MesasRoute
+  '/pdv': typeof PdvRoute
+  '/pedidos': typeof PedidosRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/pedido/$id': typeof PedidoIdRoute
+  '/recibo/$id': typeof ReciboIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/caixa': typeof CaixaRoute
+  '/cardapio': typeof CardapioRoute
+  '/clientes': typeof ClientesRoute
+  '/cozinha': typeof CozinhaRoute
+  '/mesas': typeof MesasRoute
+  '/pdv': typeof PdvRoute
+  '/pedidos': typeof PedidosRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/pedido/$id': typeof PedidoIdRoute
+  '/recibo/$id': typeof ReciboIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/caixa': typeof CaixaRoute
+  '/cardapio': typeof CardapioRoute
+  '/clientes': typeof ClientesRoute
+  '/cozinha': typeof CozinhaRoute
+  '/mesas': typeof MesasRoute
+  '/pdv': typeof PdvRoute
+  '/pedidos': typeof PedidosRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/pedido/$id': typeof PedidoIdRoute
+  '/recibo/$id': typeof ReciboIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/caixa'
+    | '/cardapio'
+    | '/clientes'
+    | '/cozinha'
+    | '/mesas'
+    | '/pdv'
+    | '/pedidos'
+    | '/relatorios'
+    | '/pedido/$id'
+    | '/recibo/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/caixa'
+    | '/cardapio'
+    | '/clientes'
+    | '/cozinha'
+    | '/mesas'
+    | '/pdv'
+    | '/pedidos'
+    | '/relatorios'
+    | '/pedido/$id'
+    | '/recibo/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/caixa'
+    | '/cardapio'
+    | '/clientes'
+    | '/cozinha'
+    | '/mesas'
+    | '/pdv'
+    | '/pedidos'
+    | '/relatorios'
+    | '/pedido/$id'
+    | '/recibo/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CaixaRoute: typeof CaixaRoute
+  CardapioRoute: typeof CardapioRoute
+  ClientesRoute: typeof ClientesRoute
+  CozinhaRoute: typeof CozinhaRoute
+  MesasRoute: typeof MesasRoute
+  PdvRoute: typeof PdvRoute
+  PedidosRoute: typeof PedidosRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  PedidoIdRoute: typeof PedidoIdRoute
+  ReciboIdRoute: typeof ReciboIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedidos': {
+      id: '/pedidos'
+      path: '/pedidos'
+      fullPath: '/pedidos'
+      preLoaderRoute: typeof PedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pdv': {
+      id: '/pdv'
+      path: '/pdv'
+      fullPath: '/pdv'
+      preLoaderRoute: typeof PdvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mesas': {
+      id: '/mesas'
+      path: '/mesas'
+      fullPath: '/mesas'
+      preLoaderRoute: typeof MesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cozinha': {
+      id: '/cozinha'
+      path: '/cozinha'
+      fullPath: '/cozinha'
+      preLoaderRoute: typeof CozinhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes': {
+      id: '/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof ClientesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cardapio': {
+      id: '/cardapio'
+      path: '/cardapio'
+      fullPath: '/cardapio'
+      preLoaderRoute: typeof CardapioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/caixa': {
+      id: '/caixa'
+      path: '/caixa'
+      fullPath: '/caixa'
+      preLoaderRoute: typeof CaixaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +238,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recibo/$id': {
+      id: '/recibo/$id'
+      path: '/recibo/$id'
+      fullPath: '/recibo/$id'
+      preLoaderRoute: typeof ReciboIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedido/$id': {
+      id: '/pedido/$id'
+      path: '/pedido/$id'
+      fullPath: '/pedido/$id'
+      preLoaderRoute: typeof PedidoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CaixaRoute: CaixaRoute,
+  CardapioRoute: CardapioRoute,
+  ClientesRoute: ClientesRoute,
+  CozinhaRoute: CozinhaRoute,
+  MesasRoute: MesasRoute,
+  PdvRoute: PdvRoute,
+  PedidosRoute: PedidosRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  PedidoIdRoute: PedidoIdRoute,
+  ReciboIdRoute: ReciboIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
