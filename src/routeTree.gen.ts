@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as PdvRouteImport } from './routes/pdv'
 import { Route as MesasRouteImport } from './routes/mesas'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as CozinhaRouteImport } from './routes/cozinha'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CardapioRouteImport } from './routes/cardapio'
@@ -21,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReciboIdRouteImport } from './routes/recibo.$id'
 import { Route as PedidoIdRouteImport } from './routes/pedido.$id'
 
+const UsuariosRoute = UsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -39,6 +46,11 @@ const PdvRoute = PdvRouteImport.update({
 const MesasRoute = MesasRouteImport.update({
   id: '/mesas',
   path: '/mesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CozinhaRoute = CozinhaRouteImport.update({
@@ -83,10 +95,12 @@ export interface FileRoutesByFullPath {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -96,10 +110,12 @@ export interface FileRoutesByTo {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -110,10 +126,12 @@ export interface FileRoutesById {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/usuarios': typeof UsuariosRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -125,10 +143,12 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/login'
     | '/mesas'
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/usuarios'
     | '/pedido/$id'
     | '/recibo/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -138,10 +158,12 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/login'
     | '/mesas'
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/usuarios'
     | '/pedido/$id'
     | '/recibo/$id'
   id:
@@ -151,10 +173,12 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/login'
     | '/mesas'
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/usuarios'
     | '/pedido/$id'
     | '/recibo/$id'
   fileRoutesById: FileRoutesById
@@ -165,16 +189,25 @@ export interface RootRouteChildren {
   CardapioRoute: typeof CardapioRoute
   ClientesRoute: typeof ClientesRoute
   CozinhaRoute: typeof CozinhaRoute
+  LoginRoute: typeof LoginRoute
   MesasRoute: typeof MesasRoute
   PdvRoute: typeof PdvRoute
   PedidosRoute: typeof PedidosRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  UsuariosRoute: typeof UsuariosRoute
   PedidoIdRoute: typeof PedidoIdRoute
   ReciboIdRoute: typeof ReciboIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usuarios': {
+      id: '/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/relatorios': {
       id: '/relatorios'
       path: '/relatorios'
@@ -201,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/mesas'
       fullPath: '/mesas'
       preLoaderRoute: typeof MesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cozinha': {
@@ -261,13 +301,25 @@ const rootRouteChildren: RootRouteChildren = {
   CardapioRoute: CardapioRoute,
   ClientesRoute: ClientesRoute,
   CozinhaRoute: CozinhaRoute,
+  LoginRoute: LoginRoute,
   MesasRoute: MesasRoute,
   PdvRoute: PdvRoute,
   PedidosRoute: PedidosRoute,
   RelatoriosRoute: RelatoriosRoute,
+  UsuariosRoute: UsuariosRoute,
   PedidoIdRoute: PedidoIdRoute,
   ReciboIdRoute: ReciboIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
