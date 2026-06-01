@@ -1,17 +1,22 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   ChefHat,
   ClipboardList,
   Flame,
   LayoutDashboard,
+  LogOut,
   Receipt,
   ScrollText,
+  Shield,
   Users,
   UtensilsCrossed,
   Wallet,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth, ROLE_LABEL } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const nav = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
@@ -27,6 +32,21 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { loading, session, profile, roles, hasRole, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !session) navigate({ to: "/login" });
+  }, [loading, session, navigate]);
+
+  if (loading || !session) {
+    return (
+      <div className="dark min-h-screen bg-background text-foreground grid place-items-center">
+        <p className="text-sm text-muted-foreground">Carregando…</p>
+      </div>
+    );
+  }
+
   return (
     <div className="dark min-h-screen bg-background text-foreground flex">
       <aside className="w-60 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
@@ -61,9 +81,37 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          {hasRole("admin") && (
+            <Link
+              to="/usuarios"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                location.pathname.startsWith("/usuarios")
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+              )}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Usuários</span>
+            </Link>
+          )}
         </nav>
-        <div className="p-3 text-xs text-muted-foreground border-t border-sidebar-border">
-          Dados locais (offline)
+        <div className="p-3 border-t border-sidebar-border space-y-2">
+          <div className="text-xs">
+            <div className="font-medium text-foreground truncate">{profile?.full_name ?? profile?.email ?? "Usuário"}</div>
+            <div className="flex gap-1 flex-wrap mt-1">
+              {roles.length === 0 ? (
+                <Badge variant="outline" className="text-[10px]">sem papel</Badge>
+              ) : (
+                roles.map((r) => (
+                  <Badge key={r} className="text-[10px]">{ROLE_LABEL[r]}</Badge>
+                ))
+              )}
+            </div>
+          </div>
+          <Button size="sm" variant="outline" className="w-full" onClick={() => { void signOut().then(() => navigate({ to: "/login" })); }}>
+            <LogOut className="w-3.5 h-3.5 mr-1.5" /> Sair
+          </Button>
         </div>
       </aside>
       <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
