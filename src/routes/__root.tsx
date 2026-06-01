@@ -81,10 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Brasa POS — Restaurante" },
       { name: "description", content: "Sistema completo para restaurante: clientes, cardápio, pedidos, cozinha, mesas, caixa e delivery." },
       { property: "og:title", content: "Brasa POS — Restaurante" },
-      { property: "og:description", content: "Sistema completo para restaurante: pedidos, mesas, cozinha, caixa e delivery." },
+      { property: "og:description", content: "Sistema completo para restaurante: clientes, cardápio, pedidos, cozinha, mesas, caixa e delivery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Brasa POS — Restaurante" },
+      { name: "twitter:description", content: "Sistema completo para restaurante: clientes, cardápio, pedidos, cozinha, mesas, caixa e delivery." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2c69a54e-9793-43b2-ad1a-fa452a87d1b0/id-preview-83521046--ac530480-80aa-40f0-8413-8f882c10fb5e.lovable.app-1780341702115.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2c69a54e-9793-43b2-ad1a-fa452a87d1b0/id-preview-83521046--ac530480-80aa-40f0-8413-8f882c10fb5e.lovable.app-1780341702115.png" },
     ],
     links: [
       {
