@@ -15,6 +15,7 @@ import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as PdvRouteImport } from './routes/pdv'
 import { Route as MesasRouteImport } from './routes/mesas'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FuncionariosRouteImport } from './routes/funcionarios'
 import { Route as CozinhaRouteImport } from './routes/cozinha'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CardapioRouteImport } from './routes/cardapio'
@@ -51,6 +52,11 @@ const MesasRoute = MesasRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FuncionariosRoute = FuncionariosRouteImport.update({
+  id: '/funcionarios',
+  path: '/funcionarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CozinhaRoute = CozinhaRouteImport.update({
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
   '/cozinha': typeof CozinhaRoute
+  '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/funcionarios'
     | '/login'
     | '/mesas'
     | '/pdv'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/funcionarios'
     | '/login'
     | '/mesas'
     | '/pdv'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/cardapio'
     | '/clientes'
     | '/cozinha'
+    | '/funcionarios'
     | '/login'
     | '/mesas'
     | '/pdv'
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   CardapioRoute: typeof CardapioRoute
   ClientesRoute: typeof ClientesRoute
   CozinhaRoute: typeof CozinhaRoute
+  FuncionariosRoute: typeof FuncionariosRoute
   LoginRoute: typeof LoginRoute
   MesasRoute: typeof MesasRoute
   PdvRoute: typeof PdvRoute
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/funcionarios': {
+      id: '/funcionarios'
+      path: '/funcionarios'
+      fullPath: '/funcionarios'
+      preLoaderRoute: typeof FuncionariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cozinha': {
@@ -301,6 +321,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardapioRoute: CardapioRoute,
   ClientesRoute: ClientesRoute,
   CozinhaRoute: CozinhaRoute,
+  FuncionariosRoute: FuncionariosRoute,
   LoginRoute: LoginRoute,
   MesasRoute: MesasRoute,
   PdvRoute: PdvRoute,

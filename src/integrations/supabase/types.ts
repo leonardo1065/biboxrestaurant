@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      employees: {
+        Row: {
+          active: boolean
+          cep: string | null
+          city: string | null
+          complement: string | null
+          created_at: string
+          day_off: string | null
+          full_name: string
+          hired_at: string
+          id: string
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["employee_role"]
+          salary: number
+          state: string | null
+          street: string | null
+          updated_at: string
+          work_days: string[]
+        }
+        Insert: {
+          active?: boolean
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          day_off?: string | null
+          full_name: string
+          hired_at?: string
+          id?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone?: string | null
+          role: Database["public"]["Enums"]["employee_role"]
+          salary?: number
+          state?: string | null
+          street?: string | null
+          updated_at?: string
+          work_days?: string[]
+        }
+        Update: {
+          active?: boolean
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          day_off?: string | null
+          full_name?: string
+          hired_at?: string
+          id?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["employee_role"]
+          salary?: number
+          state?: string | null
+          street?: string | null
+          updated_at?: string
+          work_days?: string[]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -74,6 +140,14 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "caixa" | "garcom" | "cozinha"
+      employee_role:
+        | "gerente"
+        | "atendente"
+        | "balconista"
+        | "cozinheiro"
+        | "ajudante_cozinha"
+        | "auxiliar"
+        | "garcom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -202,6 +276,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "caixa", "garcom", "cozinha"],
+      employee_role: [
+        "gerente",
+        "atendente",
+        "balconista",
+        "cozinheiro",
+        "ajudante_cozinha",
+        "auxiliar",
+        "garcom",
+      ],
     },
   },
 } as const
