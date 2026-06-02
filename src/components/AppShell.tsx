@@ -9,6 +9,7 @@ import {
   ScrollText,
   Shield,
   Users,
+  IdCard,
   UtensilsCrossed,
   Wallet,
 } from "lucide-react";
@@ -82,6 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
           {hasRole("admin") && (
+            <>
             <Link
               to="/usuarios"
               className={cn(
@@ -94,6 +96,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Shield className="w-4 h-4" />
               <span>Usuários</span>
             </Link>
+            <Link
+              to="/funcionarios"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                location.pathname.startsWith("/funcionarios")
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+              )}
+            >
+              <IdCard className="w-4 h-4" />
+              <span>Funcionários</span>
+            </Link>
+            </>
           )}
         </nav>
         <div className="p-3 border-t border-sidebar-border space-y-2">
