@@ -18,7 +18,7 @@ import { brl, formatPhone } from "@/lib/format";
 import { categoryLabels } from "@/lib/seed";
 import type { MenuCategory, MenuItem, PaymentMethod } from "@/lib/types";
 import { toast } from "sonner";
-import { Minus, Plus, Printer, Trash2, X } from "lucide-react";
+import { Minus, Plus, Printer, Trash2, X, Send, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/pedido/$id")({
   head: () => ({ meta: [{ title: "Pedido — Brasa POS" }] }),
@@ -38,6 +38,7 @@ function PedidoPage() {
   const closeOrder = useStore((s) => s.closeOrder);
   const setOrderField = useStore((s) => s.setOrderField);
   const setOrderStatus = useStore((s) => s.setOrderStatus);
+  const confirmOrder = useStore((s) => s.confirmOrder);
 
   const [cat, setCat] = useState<MenuCategory>("executivos");
   const [addItem, setAddItem] = useState<MenuItem | null>(null);
@@ -46,6 +47,7 @@ function PedidoPage() {
   const [payMethod, setPayMethod] = useState<PaymentMethod>("dinheiro");
   const [payAmount, setPayAmount] = useState("");
   const [payReceived, setPayReceived] = useState("");
+  const [feeInput, setFeeInput] = useState<string>(order?.deliveryFee != null ? String(order.deliveryFee).replace(".", ",") : "");
 
   const remaining = order ? orderRemaining(order) : 0;
   const customer = order?.customerId ? customers.find((c) => c.id === order.customerId) : undefined;
@@ -96,6 +98,8 @@ function PedidoPage() {
     : order.type === "mesa" ? `Mesa ${order.tableNumber}`
     : "Delivery";
 
+  const canConfirm = order.items.length > 0 && !order.confirmedAt && order.status !== "fechado";
+
   return (
     <AppShell>
       <PageHeader
@@ -107,13 +111,22 @@ function PedidoPage() {
             <Button asChild variant="secondary"><Link to="/recibo/$id" params={{ id: order.id }} target="_blank">
               <Printer className="w-4 h-4 mr-1.5" />{order.type === "delivery" ? "Cupom" : "Recibo"}
             </Link></Button>
+            {canConfirm && (
+              <Button variant="default" onClick={() => {
+                confirmOrder(order.id);
+                toast.success(`Pedido #${order.code} enviado para cozinha/copa`);
+              }}>
+                <Send className="w-4 h-4 mr-1.5" />Confirmar e enviar
+              </Button>
+            )}
             {order.status !== "fechado" && (
               <Button onClick={() => {
                 if (remaining > 0 && !confirm(`Faltam ${brl(remaining)}. Fechar mesmo assim?`)) return;
+                if (!order.confirmedAt) confirmOrder(order.id);
                 closeOrder(order.id);
                 toast.success("Pedido fechado");
                 navigate({ to: "/pedidos" });
-              }}>Fechar pedido</Button>
+              }}><CheckCircle2 className="w-4 h-4 mr-1.5" />Fechar pedido</Button>
             )}
           </div>
         }
@@ -266,8 +279,20 @@ function PedidoPage() {
                     <Label className="text-xs text-muted-foreground">Taxa de entrega</Label>
                     <Input
                       className="h-8 w-28 text-right"
-                      value={String(order.deliveryFee ?? 0)}
-                      onChange={(e) => setOrderField(order.id, "deliveryFee", Number(e.target.value.replace(",", ".")) || 0)}
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={feeInput}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/[^0-9.,]/g, "");
+                        setFeeInput(v);
+                        const n = Number(v.replace(",", "."));
+                        if (!Number.isNaN(n)) setOrderField(order.id, "deliveryFee", n);
+                      }}
+                      onBlur={() => {
+                        const n = Number(feeInput.replace(",", ".")) || 0;
+                        setOrderField(order.id, "deliveryFee", n);
+                        setFeeInput(n ? n.toFixed(2).replace(".", ",") : "");
+                      }}
                     />
                   </div>
                   <label className="flex items-center gap-2 text-xs">
