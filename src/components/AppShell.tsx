@@ -3,6 +3,7 @@ import {
   ChefHat,
   ClipboardList,
   Flame,
+  GlassWater,
   LayoutDashboard,
   LogOut,
   Receipt,
@@ -12,12 +13,15 @@ import {
   IdCard,
   UtensilsCrossed,
   Wallet,
+  UserPlus,
 } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, ROLE_LABEL } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
 
 const nav = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
@@ -25,6 +29,7 @@ const nav = [
   { to: "/pedidos", label: "Pedidos", icon: ClipboardList },
   { to: "/mesas", label: "Mesas", icon: UtensilsCrossed },
   { to: "/cozinha", label: "Cozinha", icon: ChefHat },
+  { to: "/copa", label: "Copa", icon: GlassWater },
   { to: "/cardapio", label: "Cardápio", icon: ScrollText },
   { to: "/clientes", label: "Clientes", icon: Users },
   { to: "/caixa", label: "Caixa", icon: Wallet },
@@ -39,6 +44,22 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  // Notificação de pedido pronto
+  const orders = useStore((s) => s.orders);
+  const ack = useStore((s) => s.acknowledgeReady);
+  const seen = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!session) return;
+    for (const o of orders) {
+      if (o.readyAt && !o.notifiedReady && !seen.current.has(o.id)) {
+        seen.current.add(o.id);
+        const label = o.type === "mesa" ? `Mesa ${o.tableNumber}` : o.type === "balcao" ? "Balcão" : "Delivery";
+        toast.success(`🔔 Pedido #${o.code} PRONTO — ${label}`, { duration: 8000 });
+        ack(o.id);
+      }
+    }
+  }, [orders, session, ack]);
 
   if (loading || !session) {
     return (
@@ -107,6 +128,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <IdCard className="w-4 h-4" />
               <span>Funcionários</span>
+            </Link>
+            <Link
+              to="/login"
+              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Cadastrar usuário</span>
             </Link>
             </>
           )}
