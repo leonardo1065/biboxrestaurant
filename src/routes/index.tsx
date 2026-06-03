@@ -26,6 +26,7 @@ function Index() {
   const sales = todays.reduce((s, o) => s + orderPaid(o), 0);
   const open = orders.filter((o) => o.status === "aberto");
   const preparing = orders.flatMap((o) => o.items.filter((i) => i.status === "preparando")).length;
+  const readyOrders = orders.filter((o) => o.readyAt && o.status !== "fechado");
 
   const byType = (t: string) => open.filter((o) => o.type === t).length;
 
@@ -47,6 +48,23 @@ function Index() {
           <Stat label="Em preparo" value={String(preparing)} icon={<ChefHat className="w-4 h-4" />} />
           <Stat label="Clientes" value={String(customers.length)} icon={<Users className="w-4 h-4" />} />
         </div>
+
+        {readyOrders.length > 0 && (
+          <Card className="border-emerald-500/40 bg-emerald-500/5">
+            <CardContent className="p-5">
+              <h2 className="font-medium mb-3 text-emerald-400">🔔 Pedidos prontos</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {readyOrders.map((o) => (
+                  <Link key={o.id} to="/pedido/$id" params={{ id: o.id }}
+                    className="rounded-md border border-emerald-500/30 bg-background/40 p-3 hover:border-emerald-500 transition-colors">
+                    <div className="font-semibold">#{o.code} · {labelType(o.type)}{o.tableNumber ? ` ${o.tableNumber}` : ""}</div>
+                    <div className="text-xs text-muted-foreground">Pronto às {new Date(o.readyAt!).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border-border">
           <CardContent className="p-5">
