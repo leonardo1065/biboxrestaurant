@@ -15,6 +15,8 @@ import type {
 import { seedMenu } from "./seed";
 import { onlyDigits } from "./format";
 
+export const BAR_CATEGORIES = new Set(["bebidas", "cervejas", "drinks"]);
+
 const uid = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
@@ -47,6 +49,8 @@ interface State {
   setItemStatus: (orderId: string, itemId: string, status: OrderItemStatus) => void;
   setOrderStatus: (orderId: string, status: OrderStatus) => void;
   setOrderField: <K extends keyof Order>(orderId: string, key: K, value: Order[K]) => void;
+  confirmOrder: (orderId: string) => void;
+  acknowledgeReady: (orderId: string) => void;
   addPayment: (orderId: string, method: PaymentMethod, amount: number, change?: number) => Payment;
   closeOrder: (orderId: string) => void;
 
@@ -171,7 +175,15 @@ export const useStore = create<State>()(
         set((s) => ({
           orders: s.orders.map((o) =>
             o.id === orderId
-              ? { ...o, items: o.items.map((i) => (i.id === itemId ? { ...i, status } : i)) }
+              ? (() => {
+                  const items = o.items.map((i) => (i.id === itemId ? { ...i, status } : i));
+                  const allReady = items.length > 0 && items.every((i) => i.status === "pronto" || i.status === "entregue");
+                  return {
+                    ...o,
+                    items,
+                    readyAt: allReady && !o.readyAt ? new Date().toISOString() : o.readyAt,
+                  };
+                })()
               : o,
           ),
         })),
@@ -188,6 +200,20 @@ export const useStore = create<State>()(
       setOrderField: (orderId, key, value) =>
         set((s) => ({
           orders: s.orders.map((o) => (o.id === orderId ? { ...o, [key]: value } : o)),
+        })),
+
+      confirmOrder: (orderId) =>
+        set((s) => ({
+          orders: s.orders.map((o) =>
+            o.id === orderId && !o.confirmedAt
+              ? { ...o, confirmedAt: new Date().toISOString() }
+              : o,
+          ),
+        })),
+
+      acknowledgeReady: (orderId) =>
+        set((s) => ({
+          orders: s.orders.map((o) => (o.id === orderId ? { ...o, notifiedReady: true } : o)),
         })),
 
       addPayment: (orderId, method, amount, change) => {

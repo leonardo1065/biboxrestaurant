@@ -71,6 +71,9 @@ export interface Order {
   createdAt: string;
   closedAt?: string;
   splitCount?: number; // divisão de clientes na mesa
+  confirmedAt?: string; // enviado para cozinha/copa
+  readyAt?: string; // todos os itens prontos
+  notifiedReady?: boolean; // já avisamos o cliente/mesa
 }
 
 export interface CashSession {
