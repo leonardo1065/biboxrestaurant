@@ -129,13 +129,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               <IdCard className="w-4 h-4" />
               <span>Funcionários</span>
             </Link>
-            <Link
-              to="/login"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+            <button
+              onClick={async () => {
+                if (!confirm("Para cadastrar um novo usuário você sairá da sua conta. Continuar?")) return;
+                await signOut();
+                navigate({ to: "/login", search: { signup: 1 } as never });
+              }}
+              className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
             >
               <UserPlus className="w-4 h-4" />
               <span>Cadastrar usuário</span>
-            </Link>
+            </button>
             </>
           )}
         </nav>
