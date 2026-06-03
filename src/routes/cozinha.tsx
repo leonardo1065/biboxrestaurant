@@ -3,7 +3,7 @@ import { AppShell, PageHeader } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useStore } from "@/lib/store";
+import { useStore, BAR_CATEGORIES } from "@/lib/store";
 import type { OrderItemStatus } from "@/lib/types";
 import { Bell, ChefHat, CheckCircle2 } from "lucide-react";
 
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/cozinha")({
 
 function CozinhaPage() {
   const orders = useStore((s) => s.orders);
+  const menu = useStore((s) => s.menu);
   const setItemStatus = useStore((s) => s.setItemStatus);
 
   const lanes: { status: OrderItemStatus; label: string; tone: string; icon: React.ReactNode; next?: OrderItemStatus; nextLabel?: string }[] = [
@@ -22,7 +23,14 @@ function CozinhaPage() {
     { status: "pronto", label: "Prontos", tone: "bg-emerald-500/15 border-emerald-500/40", icon: <CheckCircle2 className="w-4 h-4" />, next: "entregue", nextLabel: "Entregar" },
   ];
 
-  const tickets = orders.filter((o) => o.status === "aberto" || o.status === "pago");
+  const isFood = (menuItemId: string) => {
+    const m = menu.find((x) => x.id === menuItemId);
+    return m ? !BAR_CATEGORIES.has(m.category) : true;
+  };
+  const tickets = orders
+    .filter((o) => !!o.confirmedAt && (o.status === "aberto" || o.status === "pago"))
+    .map((o) => ({ ...o, items: o.items.filter((i) => isFood(i.menuItemId)) }))
+    .filter((o) => o.items.length > 0);
 
   return (
     <AppShell>

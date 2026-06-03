@@ -17,6 +17,7 @@ import { Route as MesasRouteImport } from './routes/mesas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FuncionariosRouteImport } from './routes/funcionarios'
 import { Route as CozinhaRouteImport } from './routes/cozinha'
+import { Route as CopaRouteImport } from './routes/copa'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as CardapioRouteImport } from './routes/cardapio'
 import { Route as CaixaRouteImport } from './routes/caixa'
@@ -64,6 +65,11 @@ const CozinhaRoute = CozinhaRouteImport.update({
   path: '/cozinha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CopaRoute = CopaRouteImport.update({
+  id: '/copa',
+  path: '/copa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientesRoute = ClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/caixa': typeof CaixaRoute
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
+  '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
   '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/caixa': typeof CaixaRoute
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
+  '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
   '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/caixa': typeof CaixaRoute
   '/cardapio': typeof CardapioRoute
   '/clientes': typeof ClientesRoute
+  '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
   '/funcionarios': typeof FuncionariosRoute
   '/login': typeof LoginRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/caixa'
     | '/cardapio'
     | '/clientes'
+    | '/copa'
     | '/cozinha'
     | '/funcionarios'
     | '/login'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/caixa'
     | '/cardapio'
     | '/clientes'
+    | '/copa'
     | '/cozinha'
     | '/funcionarios'
     | '/login'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/caixa'
     | '/cardapio'
     | '/clientes'
+    | '/copa'
     | '/cozinha'
     | '/funcionarios'
     | '/login'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   CaixaRoute: typeof CaixaRoute
   CardapioRoute: typeof CardapioRoute
   ClientesRoute: typeof ClientesRoute
+  CopaRoute: typeof CopaRoute
   CozinhaRoute: typeof CozinhaRoute
   FuncionariosRoute: typeof FuncionariosRoute
   LoginRoute: typeof LoginRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CozinhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/copa': {
+      id: '/copa'
+      path: '/copa'
+      fullPath: '/copa'
+      preLoaderRoute: typeof CopaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clientes': {
       id: '/clientes'
       path: '/clientes'
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaixaRoute: CaixaRoute,
   CardapioRoute: CardapioRoute,
   ClientesRoute: ClientesRoute,
+  CopaRoute: CopaRoute,
   CozinhaRoute: CozinhaRoute,
   FuncionariosRoute: FuncionariosRoute,
   LoginRoute: LoginRoute,
@@ -334,3 +355,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

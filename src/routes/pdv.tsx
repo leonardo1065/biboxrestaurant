@@ -39,10 +39,11 @@ function PDV() {
       setOpenForm(true);
       return;
     }
+    const fee = type === "delivery" ? Number((deliveryFee || "0").replace(",", ".")) : 0;
     const order = createOrder(type, {
       tableNumber: type === "mesa" ? Number(tableNumber) : undefined,
       customerId: customer?.id,
-      deliveryFee: type === "delivery" && deliveryFee ? Number(deliveryFee) : undefined,
+      deliveryFee: type === "delivery" && fee > 0 ? fee : undefined,
     });
     navigate({ to: "/pedido/$id", params: { id: order.id } });
   };
@@ -139,7 +140,7 @@ function PDV() {
                   <Input
                     placeholder="0,00"
                     value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(e.target.value.replace(",", "."))}
+                    onChange={(e) => setDeliveryFee(e.target.value.replace(/[^0-9.,]/g, ""))}
                     inputMode="decimal"
                   />
                 </div>
@@ -147,7 +148,7 @@ function PDV() {
                   Iniciar delivery
                 </Button>
               </div>
-              {deliveryFee && <p className="text-xs text-muted-foreground">Taxa: {brl(Number(deliveryFee) || 0)}</p>}
+              {deliveryFee && <p className="text-xs text-muted-foreground">Taxa: {brl(Number(deliveryFee.replace(",", ".")) || 0)}</p>}
             </div>
           </CardContent>
         </Card>
