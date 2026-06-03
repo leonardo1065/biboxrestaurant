@@ -25,11 +25,16 @@ function CaixaPage() {
   const [opening, setOpening] = useState("");
   const [closing, setClosing] = useState("");
 
-  const sinceOpened = current
-    ? orders.flatMap((o) => o.payments).filter((p) => new Date(p.at) >= new Date(current.openedAt))
-    : [];
+  // Vendas do DIA atual — todo pagamento registrado hoje, independente da abertura do caixa.
+  const today = new Date();
+  const sameDay = (d: Date) =>
+    d.getDate() === today.getDate() &&
+    d.getMonth() === today.getMonth() &&
+    d.getFullYear() === today.getFullYear();
 
-  const totals = sinceOpened.reduce<Record<PaymentMethod, number>>(
+  const paymentsToday = orders.flatMap((o) => o.payments).filter((p) => sameDay(new Date(p.at)));
+
+  const totals = paymentsToday.reduce<Record<PaymentMethod, number>>(
     (acc, p) => {
       acc[p.method] = (acc[p.method] ?? 0) + (p.amount - (p.change ?? 0));
       return acc;
@@ -39,15 +44,27 @@ function CaixaPage() {
 
   const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
   const totalMovimento = totals.dinheiro + totals.pix + totals.debito + totals.credito;
+  const ordersPaidToday = orders.filter((o) =>
+    o.payments.some((p) => sameDay(new Date(p.at))),
+  ).length;
 
   return (
     <AppShell>
       <PageHeader title="Caixa" description="Abertura, fechamento e movimentação por forma de pagamento." />
       <div className="px-8 pb-8 space-y-6">
         {!current ? (
+          <>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <Stat label="Pedidos pagos hoje" value={String(ordersPaidToday)} />
+            <Stat label="Dinheiro" value={brl(totals.dinheiro)} />
+            <Stat label="PIX" value={brl(totals.pix)} />
+            <Stat label="Débito" value={brl(totals.debito)} />
+            <Stat label="Crédito" value={brl(totals.credito)} />
+          </div>
           <Card className="border-border max-w-md">
             <CardContent className="p-5 space-y-3">
               <h2 className="font-medium">Abrir caixa</h2>
+              <p className="text-xs text-muted-foreground">As vendas do dia continuam sendo contabilizadas acima mesmo com o caixa fechado.</p>
               <div>
                 <Label>Valor de abertura (R$)</Label>
                 <Input inputMode="decimal" value={opening} onChange={(e) => setOpening(e.target.value.replace(",", "."))} />
@@ -60,6 +77,7 @@ function CaixaPage() {
               }}>Abrir caixa</Button>
             </CardContent>
           </Card>
+          </>
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
@@ -71,11 +89,12 @@ function CaixaPage() {
             </div>
             <Card className="border-border max-w-md">
               <CardContent className="p-5 space-y-2 text-sm">
-                <h2 className="font-medium mb-1">Movimento do caixa</h2>
-                <div className="flex justify-between"><span className="text-muted-foreground">Total recebido (bruto)</span><span className="font-medium">{brl(totalMovimento)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">(-) Valor de abertura</span><span className="font-medium">{brl(current.openingAmount)}</span></div>
-                <div className="border-t border-border pt-2 flex justify-between"><span className="font-medium">Movimento líquido do dia</span><span className="font-semibold text-primary">{brl(totalMovimento)}</span></div>
-                <p className="text-xs text-muted-foreground">A abertura é descontada do dinheiro esperado em caixa no fechamento.</p>
+                <h2 className="font-medium mb-1">Movimento do caixa (hoje)</h2>
+                <div className="flex justify-between"><span className="text-muted-foreground">Pedidos pagos hoje</span><span className="font-medium">{ordersPaidToday}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Total recebido (vendas)</span><span className="font-medium">{brl(totalMovimento)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Valor de abertura (em dinheiro)</span><span className="font-medium">{brl(current.openingAmount)}</span></div>
+                <div className="border-t border-border pt-2 flex justify-between"><span className="font-medium">Esperado em dinheiro no fechamento</span><span className="font-semibold text-primary">{brl(expectedCash)}</span></div>
+                <p className="text-xs text-muted-foreground">Cada pedido finalizado (dinheiro, PIX, débito ou crédito) entra automaticamente como venda do dia.</p>
               </CardContent>
             </Card>
             <Card className="border-border max-w-md">
