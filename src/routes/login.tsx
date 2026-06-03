@@ -18,15 +18,17 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { session, loading } = useAuth();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const initialTab: "signin" | "signup" =
+    typeof window !== "undefined" && window.location.search.includes("signup") ? "signup" : "signin";
+  const [tab, setTab] = useState<"signin" | "signup">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/" });
-  }, [loading, session, navigate]);
+    if (!loading && session && tab !== "signup") navigate({ to: "/" });
+  }, [loading, session, navigate, tab]);
 
   const onSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

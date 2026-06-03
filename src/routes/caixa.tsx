@@ -38,6 +38,7 @@ function CaixaPage() {
   );
 
   const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
+  const totalMovimento = totals.dinheiro + totals.pix + totals.debito + totals.credito;
 
   return (
     <AppShell>
@@ -68,6 +69,15 @@ function CaixaPage() {
               <Stat label="Débito" value={brl(totals.debito)} />
               <Stat label="Crédito" value={brl(totals.credito)} />
             </div>
+            <Card className="border-border max-w-md">
+              <CardContent className="p-5 space-y-2 text-sm">
+                <h2 className="font-medium mb-1">Movimento do caixa</h2>
+                <div className="flex justify-between"><span className="text-muted-foreground">Total recebido (bruto)</span><span className="font-medium">{brl(totalMovimento)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">(-) Valor de abertura</span><span className="font-medium">{brl(current.openingAmount)}</span></div>
+                <div className="border-t border-border pt-2 flex justify-between"><span className="font-medium">Movimento líquido do dia</span><span className="font-semibold text-primary">{brl(totalMovimento)}</span></div>
+                <p className="text-xs text-muted-foreground">A abertura é descontada do dinheiro esperado em caixa no fechamento.</p>
+              </CardContent>
+            </Card>
             <Card className="border-border max-w-md">
               <CardContent className="p-5 space-y-3">
                 <h2 className="font-medium">Fechar caixa</h2>
