@@ -25,14 +25,12 @@ function CaixaPage() {
   const [opening, setOpening] = useState("");
   const [closing, setClosing] = useState("");
 
-  // Vendas do DIA atual — todo pagamento registrado hoje, independente da abertura do caixa.
-  const today = new Date();
-  const sameDay = (d: Date) =>
-    d.getDate() === today.getDate() &&
-    d.getMonth() === today.getMonth() &&
-    d.getFullYear() === today.getFullYear();
-
-  const paymentsToday = orders.flatMap((o) => o.payments).filter((p) => sameDay(new Date(p.at)));
+  // Vendas contabilizadas a partir da abertura do caixa atual. Ao fechar o caixa,
+  // a sessão termina e os campos voltam para zero até a próxima abertura.
+  const sessionStart = current ? new Date(current.openedAt).getTime() : null;
+  const paymentsToday = sessionStart
+    ? orders.flatMap((o) => o.payments).filter((p) => new Date(p.at).getTime() >= sessionStart)
+    : [];
 
   const totals = paymentsToday.reduce<Record<PaymentMethod, number>>(
     (acc, p) => {
@@ -43,10 +41,11 @@ function CaixaPage() {
   );
 
   const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
+  const cashSalesNet = totals.dinheiro - (current?.openingAmount ?? 0);
   const totalMovimento = totals.dinheiro + totals.pix + totals.debito + totals.credito;
-  const ordersPaidToday = orders.filter((o) =>
-    o.payments.some((p) => sameDay(new Date(p.at))),
-  ).length;
+  const ordersPaidToday = sessionStart
+    ? orders.filter((o) => o.payments.some((p) => new Date(p.at).getTime() >= sessionStart!)).length
+    : 0;
 
   return (
     <AppShell>
@@ -55,16 +54,16 @@ function CaixaPage() {
         {!current ? (
           <>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <Stat label="Pedidos pagos hoje" value={String(ordersPaidToday)} />
-            <Stat label="Dinheiro" value={brl(totals.dinheiro)} />
-            <Stat label="PIX" value={brl(totals.pix)} />
-            <Stat label="Débito" value={brl(totals.debito)} />
-            <Stat label="Crédito" value={brl(totals.credito)} />
+            <Stat label="Pedidos pagos" value="0" />
+            <Stat label="Dinheiro" value={brl(0)} />
+            <Stat label="PIX" value={brl(0)} />
+            <Stat label="Débito" value={brl(0)} />
+            <Stat label="Crédito" value={brl(0)} />
           </div>
           <Card className="border-border max-w-md">
             <CardContent className="p-5 space-y-3">
               <h2 className="font-medium">Abrir caixa</h2>
-              <p className="text-xs text-muted-foreground">As vendas do dia continuam sendo contabilizadas acima mesmo com o caixa fechado.</p>
+              <p className="text-xs text-muted-foreground">Os valores começam zerados ao abrir o caixa e contabilizam todos os pagamentos (dinheiro, PIX, débito e crédito) recebidos durante a sessão.</p>
               <div>
                 <Label>Valor de abertura (R$)</Label>
                 <Input inputMode="decimal" value={opening} onChange={(e) => setOpening(e.target.value.replace(",", "."))} />
@@ -89,12 +88,14 @@ function CaixaPage() {
             </div>
             <Card className="border-border max-w-md">
               <CardContent className="p-5 space-y-2 text-sm">
-                <h2 className="font-medium mb-1">Movimento do caixa (hoje)</h2>
+                <h2 className="font-medium mb-1">Movimento do caixa (sessão atual)</h2>
                 <div className="flex justify-between"><span className="text-muted-foreground">Pedidos pagos hoje</span><span className="font-medium">{ordersPaidToday}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Total recebido (vendas)</span><span className="font-medium">{brl(totalMovimento)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Valor de abertura (em dinheiro)</span><span className="font-medium">{brl(current.openingAmount)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Vendas em dinheiro</span><span className="font-medium">{brl(totals.dinheiro)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">(−) Valor de abertura</span><span className="font-medium">- {brl(current.openingAmount)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Vendas em dinheiro líquidas</span><span className="font-medium">{brl(cashSalesNet)}</span></div>
                 <div className="border-t border-border pt-2 flex justify-between"><span className="font-medium">Esperado em dinheiro no fechamento</span><span className="font-semibold text-primary">{brl(expectedCash)}</span></div>
-                <p className="text-xs text-muted-foreground">Cada pedido finalizado (dinheiro, PIX, débito ou crédito) entra automaticamente como venda do dia.</p>
+                <p className="text-xs text-muted-foreground">Cada pedido finalizado nesta sessão (dinheiro, PIX, débito ou crédito) entra automaticamente como venda. Ao fechar o caixa, os campos voltam a zero.</p>
               </CardContent>
             </Card>
             <Card className="border-border max-w-md">

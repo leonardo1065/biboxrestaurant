@@ -81,12 +81,16 @@ function PedidoPage() {
   const doPay = () => {
     const amt = Number(payAmount.replace(",", ".")) || 0;
     if (amt <= 0) { toast.error("Informe o valor"); return; }
+    let registeredAmount = amt;
     let change: number | undefined;
     if (payMethod === "dinheiro" && payReceived) {
       const rec = Number(payReceived.replace(",", ".")) || 0;
-      if (rec >= amt) change = rec - amt;
+      if (rec >= amt) {
+        registeredAmount = rec;
+        change = rec - amt;
+      }
     }
-    addPayment(order.id, payMethod, amt, change);
+    addPayment(order.id, payMethod, registeredAmount, change);
     setPayAmount(""); setPayReceived("");
     toast.success(`Pagamento ${payMethod} de ${brl(amt)}${change ? ` — troco ${brl(change)}` : ""}`);
     if (amt >= orderRemaining(order)) {
@@ -320,7 +324,7 @@ function PedidoPage() {
                   ))}
                 </div>
                 <div>
-                  <Label className="text-xs">Valor a pagar</Label>
+                  <Label className="text-xs">Valor a pagar (total do pedido)</Label>
                   <div className="flex gap-2">
                     <Input inputMode="decimal" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder={brl(remaining)} />
                     <Button variant="ghost" onClick={() => setPayAmount(String(remaining.toFixed(2)))}>Falta</Button>
@@ -328,10 +332,10 @@ function PedidoPage() {
                 </div>
                 {payMethod === "dinheiro" && (
                   <div>
-                    <Label className="text-xs">Valor recebido (para calcular troco)</Label>
+                    <Label className="text-xs">Valor recebido em dinheiro</Label>
                     <Input inputMode="decimal" value={payReceived} onChange={(e) => setPayReceived(e.target.value)} placeholder="0,00" />
-                    {payReceived && payAmount && Number(payReceived) >= Number(payAmount) && (
-                      <div className="text-xs text-primary mt-1">Troco: {brl(Number(payReceived) - Number(payAmount))}</div>
+                    {payReceived && payAmount && Number(payReceived.replace(",", ".")) >= Number(payAmount.replace(",", ".")) && (
+                      <div className="text-xs text-primary mt-1">Troco: {brl(Number(payReceived.replace(",", ".")) - Number(payAmount.replace(",", ".")))}</div>
                     )}
                   </div>
                 )}
