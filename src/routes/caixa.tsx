@@ -55,10 +55,10 @@ function CaixaPage() {
           <>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             <Stat label="Pedidos pagos" value="0" />
-            <Stat label="Dinheiro" value={brl(0)} />
-            <Stat label="PIX" value={brl(0)} />
-            <Stat label="Débito" value={brl(0)} />
-            <Stat label="Crédito" value={brl(0)} />
+            <Stat label="Total venda Dinheiro" value={brl(0)} />
+            <Stat label="Total venda PIX" value={brl(0)} />
+            <Stat label="Total venda Débito" value={brl(0)} />
+            <Stat label="Total venda Crédito" value={brl(0)} />
           </div>
           <Card className="border-border max-w-md">
             <CardContent className="p-5 space-y-3">
@@ -81,10 +81,10 @@ function CaixaPage() {
           <>
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               <Stat label="Abertura" value={brl(current.openingAmount)} />
-              <Stat label="Dinheiro" value={brl(totals.dinheiro)} />
-              <Stat label="PIX" value={brl(totals.pix)} />
-              <Stat label="Débito" value={brl(totals.debito)} />
-              <Stat label="Crédito" value={brl(totals.credito)} />
+              <Stat label="Total venda Dinheiro" value={brl(totals.dinheiro)} />
+              <Stat label="Total venda PIX" value={brl(totals.pix)} />
+              <Stat label="Total venda Débito" value={brl(totals.debito)} />
+              <Stat label="Total venda Crédito" value={brl(totals.credito)} />
             </div>
             <Card className="border-border max-w-md">
               <CardContent className="p-5 space-y-2 text-sm">
