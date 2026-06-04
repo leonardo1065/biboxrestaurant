@@ -24,6 +24,7 @@ import { Route as CaixaRouteImport } from './routes/caixa'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReciboIdRouteImport } from './routes/recibo.$id'
 import { Route as PedidoIdRouteImport } from './routes/pedido.$id'
+import { Route as FuncionariosIdRouteImport } from './routes/funcionarios.$id'
 
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
@@ -100,6 +101,11 @@ const PedidoIdRoute = PedidoIdRouteImport.update({
   path: '/pedido/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FuncionariosIdRoute = FuncionariosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => FuncionariosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,13 +114,14 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
-  '/funcionarios': typeof FuncionariosRoute
+  '/funcionarios': typeof FuncionariosRouteWithChildren
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
   '/usuarios': typeof UsuariosRoute
+  '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -125,13 +132,14 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
-  '/funcionarios': typeof FuncionariosRoute
+  '/funcionarios': typeof FuncionariosRouteWithChildren
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
   '/usuarios': typeof UsuariosRoute
+  '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -143,13 +151,14 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/copa': typeof CopaRoute
   '/cozinha': typeof CozinhaRoute
-  '/funcionarios': typeof FuncionariosRoute
+  '/funcionarios': typeof FuncionariosRouteWithChildren
   '/login': typeof LoginRoute
   '/mesas': typeof MesasRoute
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
   '/usuarios': typeof UsuariosRoute
+  '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
   '/recibo/$id': typeof ReciboIdRoute
 }
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/relatorios'
     | '/usuarios'
+    | '/funcionarios/$id'
     | '/pedido/$id'
     | '/recibo/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/relatorios'
     | '/usuarios'
+    | '/funcionarios/$id'
     | '/pedido/$id'
     | '/recibo/$id'
   id:
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/relatorios'
     | '/usuarios'
+    | '/funcionarios/$id'
     | '/pedido/$id'
     | '/recibo/$id'
   fileRoutesById: FileRoutesById
@@ -214,7 +226,7 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   CopaRoute: typeof CopaRoute
   CozinhaRoute: typeof CozinhaRoute
-  FuncionariosRoute: typeof FuncionariosRoute
+  FuncionariosRoute: typeof FuncionariosRouteWithChildren
   LoginRoute: typeof LoginRoute
   MesasRoute: typeof MesasRoute
   PdvRoute: typeof PdvRoute
@@ -332,8 +344,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/funcionarios/$id': {
+      id: '/funcionarios/$id'
+      path: '/$id'
+      fullPath: '/funcionarios/$id'
+      preLoaderRoute: typeof FuncionariosIdRouteImport
+      parentRoute: typeof FuncionariosRoute
+    }
   }
 }
+
+interface FuncionariosRouteChildren {
+  FuncionariosIdRoute: typeof FuncionariosIdRoute
+}
+
+const FuncionariosRouteChildren: FuncionariosRouteChildren = {
+  FuncionariosIdRoute: FuncionariosIdRoute,
+}
+
+const FuncionariosRouteWithChildren = FuncionariosRoute._addFileChildren(
+  FuncionariosRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -342,7 +373,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   CopaRoute: CopaRoute,
   CozinhaRoute: CozinhaRoute,
-  FuncionariosRoute: FuncionariosRoute,
+  FuncionariosRoute: FuncionariosRouteWithChildren,
   LoginRoute: LoginRoute,
   MesasRoute: MesasRoute,
   PdvRoute: PdvRoute,
