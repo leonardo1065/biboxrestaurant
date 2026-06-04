@@ -60,8 +60,14 @@ interface State {
   currentCash: () => CashSession | undefined;
 }
 
+export const orderSubtotal = (o: Order) =>
+  o.items.reduce((s, i) => s + i.price * i.qty, 0);
+
+export const orderTip = (o: Order) =>
+  o.type === "mesa" && o.tipEnabled ? orderSubtotal(o) * 0.1 : 0;
+
 export const orderTotal = (o: Order) =>
-  o.items.reduce((s, i) => s + i.price * i.qty, 0) + (o.deliveryFee ?? 0);
+  orderSubtotal(o) + orderTip(o) + (o.deliveryFee ?? 0);
 
 export const orderPaid = (o: Order) =>
   o.payments.reduce((s, p) => s + p.amount - (p.change ?? 0), 0);
