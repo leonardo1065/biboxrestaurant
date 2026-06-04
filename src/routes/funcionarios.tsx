@@ -229,7 +229,9 @@ function EmployeesPage() {
             <CardContent className="p-4 flex flex-col md:flex-row md:items-center gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{e.full_name}</span>
+                  <Link to="/funcionarios/$id" params={{ id: e.id }} className="font-medium hover:underline">
+                    {e.full_name}
+                  </Link>
                   <Badge>{ROLE_LABEL[e.role]}</Badge>
                   {!e.active && <Badge variant="outline">Inativo</Badge>}
                 </div>
@@ -242,6 +244,9 @@ function EmployeesPage() {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/funcionarios/$id" params={{ id: e.id }}><Eye className="w-3.5 h-3.5" /></Link>
+                </Button>
                 <Button size="sm" variant="outline" onClick={() => openEdit(e)}><Pencil className="w-3.5 h-3.5" /></Button>
                 <Button size="sm" variant="outline" onClick={() => remove(e.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
               </div>
