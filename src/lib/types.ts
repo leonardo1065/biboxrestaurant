@@ -74,6 +74,7 @@ export interface Order {
   confirmedAt?: string; // enviado para cozinha/copa
   readyAt?: string; // todos os itens prontos
   notifiedReady?: boolean; // já avisamos o cliente/mesa
+  tipEnabled?: boolean; // taxa de 10% do garçom (mesa)
 }
 
 export interface CashSession {
