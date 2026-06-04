@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { lookupCep } from "@/lib/viacep";
 import { onlyDigits } from "@/lib/format";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/funcionarios")({
   head: () => ({ meta: [{ title: "Funcionários — Brasa POS" }] }),
