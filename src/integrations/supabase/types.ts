@@ -17,9 +17,12 @@ export type Database = {
       employees: {
         Row: {
           active: boolean
+          apto: string | null
+          bloco: string | null
           cep: string | null
           city: string | null
           complement: string | null
+          cpf: string | null
           created_at: string
           day_off: string | null
           full_name: string
@@ -29,6 +32,7 @@ export type Database = {
           notes: string | null
           number: string | null
           phone: string | null
+          rg: string | null
           role: Database["public"]["Enums"]["employee_role"]
           salary: number
           state: string | null
@@ -38,9 +42,12 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          apto?: string | null
+          bloco?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           day_off?: string | null
           full_name: string
@@ -50,6 +57,7 @@ export type Database = {
           notes?: string | null
           number?: string | null
           phone?: string | null
+          rg?: string | null
           role: Database["public"]["Enums"]["employee_role"]
           salary?: number
           state?: string | null
@@ -59,9 +67,12 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          apto?: string | null
+          bloco?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           day_off?: string | null
           full_name?: string
@@ -71,6 +82,7 @@ export type Database = {
           notes?: string | null
           number?: string | null
           phone?: string | null
+          rg?: string | null
           role?: Database["public"]["Enums"]["employee_role"]
           salary?: number
           state?: string | null
@@ -148,6 +160,8 @@ export type Database = {
         | "ajudante_cozinha"
         | "auxiliar"
         | "garcom"
+        | "copeiro"
+        | "faxineiro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -284,6 +298,8 @@ export const Constants = {
         "ajudante_cozinha",
         "auxiliar",
         "garcom",
+        "copeiro",
+        "faxineiro",
       ],
     },
   },
