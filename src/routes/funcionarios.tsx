@@ -22,15 +22,17 @@ export const Route = createFileRoute("/funcionarios")({
   component: EmployeesPage,
 });
 
-type Role = "gerente" | "atendente" | "balconista" | "cozinheiro" | "ajudante_cozinha" | "auxiliar" | "garcom";
+type Role = "gerente" | "atendente" | "balconista" | "cozinheiro" | "ajudante_cozinha" | "auxiliar" | "garcom" | "copeiro" | "faxineiro";
 const ROLE_LABEL: Record<Role, string> = {
   gerente: "Gerente",
   atendente: "Atendente",
   balconista: "Balconista",
   cozinheiro: "Cozinheiro",
   ajudante_cozinha: "Ajudante de cozinha",
-  auxiliar: "Auxiliar",
+  copeiro: "Copeiro",
   garcom: "Garçom",
+  faxineiro: "Faxineiro",
+  auxiliar: "Auxiliar",
 };
 const DAYS = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"] as const;
 const DAY_LABEL: Record<string, string> = { seg: "Seg", ter: "Ter", qua: "Qua", qui: "Qui", sex: "Sex", sab: "Sáb", dom: "Dom" };
@@ -39,9 +41,13 @@ type Employee = {
   id: string;
   full_name: string;
   phone: string | null;
+  rg: string | null;
+  cpf: string | null;
   cep: string | null;
   street: string | null;
   number: string | null;
+  apto: string | null;
+  bloco: string | null;
   complement: string | null;
   neighborhood: string | null;
   city: string | null;
@@ -58,9 +64,13 @@ type Employee = {
 const empty: Omit<Employee, "id"> = {
   full_name: "",
   phone: "",
+  rg: "",
+  cpf: "",
   cep: "",
   street: "",
   number: "",
+  apto: "",
+  bloco: "",
   complement: "",
   neighborhood: "",
   city: "",
@@ -105,7 +115,7 @@ function EmployeesPage() {
   const openNew = () => { setEditing(null); setForm(empty); setOpen(true); };
   const openEdit = (e: Employee) => {
     setEditing(e);
-    setForm({ ...e, phone: e.phone ?? "", cep: e.cep ?? "", street: e.street ?? "", number: e.number ?? "", complement: e.complement ?? "", neighborhood: e.neighborhood ?? "", city: e.city ?? "", state: e.state ?? "", notes: e.notes ?? "" });
+    setForm({ ...e, phone: e.phone ?? "", rg: e.rg ?? "", cpf: e.cpf ?? "", cep: e.cep ?? "", street: e.street ?? "", number: e.number ?? "", apto: e.apto ?? "", bloco: e.bloco ?? "", complement: e.complement ?? "", neighborhood: e.neighborhood ?? "", city: e.city ?? "", state: e.state ?? "", notes: e.notes ?? "" });
     setOpen(true);
   };
 
@@ -157,6 +167,8 @@ function EmployeesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2"><Label>Nome</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></div>
                 <div><Label>Telefone</Label><Input value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div><Label>RG</Label><Input value={form.rg ?? ""} onChange={(e) => setForm({ ...form, rg: e.target.value })} /></div>
+                <div><Label>CPF</Label><Input value={form.cpf ?? ""} onChange={(e) => setForm({ ...form, cpf: e.target.value })} /></div>
                 <div>
                   <Label>Função</Label>
                   <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as Role })}>
@@ -173,6 +185,8 @@ function EmployeesPage() {
                 <div><Label>CEP</Label><Input value={form.cep ?? ""} onChange={(e) => void onCep(e.target.value)} /></div>
                 <div className="col-span-2"><Label>Rua</Label><Input value={form.street ?? ""} onChange={(e) => setForm({ ...form, street: e.target.value })} /></div>
                 <div><Label>Número</Label><Input value={form.number ?? ""} onChange={(e) => setForm({ ...form, number: e.target.value })} /></div>
+                <div><Label>Apto</Label><Input value={form.apto ?? ""} onChange={(e) => setForm({ ...form, apto: e.target.value })} /></div>
+                <div><Label>Bloco</Label><Input value={form.bloco ?? ""} onChange={(e) => setForm({ ...form, bloco: e.target.value })} /></div>
                 <div><Label>Complemento</Label><Input value={form.complement ?? ""} onChange={(e) => setForm({ ...form, complement: e.target.value })} /></div>
                 <div><Label>Bairro</Label><Input value={form.neighborhood ?? ""} onChange={(e) => setForm({ ...form, neighborhood: e.target.value })} /></div>
                 <div><Label>Cidade</Label><Input value={form.city ?? ""} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
