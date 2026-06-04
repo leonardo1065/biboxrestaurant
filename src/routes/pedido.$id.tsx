@@ -13,7 +13,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { useStore, orderTotal, orderPaid, orderRemaining } from "@/lib/store";
+import { useStore, orderTotal, orderPaid, orderRemaining, orderSubtotal, orderTip } from "@/lib/store";
 import { brl, formatPhone } from "@/lib/format";
 import { categoryLabels } from "@/lib/seed";
 import type { MenuCategory, MenuItem, PaymentMethod } from "@/lib/types";
@@ -68,6 +68,8 @@ function PedidoPage() {
 
   const total = orderTotal(order);
   const paid = orderPaid(order);
+  const subtotal = orderSubtotal(order);
+  const tip = orderTip(order);
 
   const confirmAdd = () => {
     if (!addItem) return;
@@ -276,7 +278,20 @@ function PedidoPage() {
         <div className="space-y-4">
           <Card className="border-border">
             <CardContent className="p-4 space-y-2 text-sm">
-              <Row label="Subtotal" value={brl(total - (order.deliveryFee ?? 0))} />
+              <Row label="Subtotal" value={brl(subtotal)} />
+              {order.type === "mesa" && (
+                <div className="flex items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!order.tipEnabled}
+                      onChange={(e) => setOrderField(order.id, "tipEnabled", e.target.checked)}
+                    />
+                    Taxa do garçom (10%)
+                  </label>
+                  <span className={tip ? "font-medium" : "text-muted-foreground"}>{brl(tip)}</span>
+                </div>
+              )}
               {order.type === "delivery" && (
                 <>
                   <div className="flex items-center justify-between gap-2">
