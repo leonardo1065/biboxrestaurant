@@ -36,6 +36,7 @@ function Index() {
   const readyOrders = orders.filter((o) => o.readyAt && o.status !== "fechado");
 
   const byType = (t: string) => open.filter((o) => o.type === t).length;
+  const { hasRole } = useAuth();
 
   return (
     <AppShell>
@@ -43,9 +44,28 @@ function Index() {
         title="Painel"
         description="Visão geral do dia"
         actions={
-          <Button asChild>
-            <Link to="/pdv"><Flame className="w-4 h-4 mr-1.5" />Novo pedido</Link>
-          </Button>
+          <div className="flex gap-2">
+            {hasRole("admin") && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Settings className="w-4 h-4 mr-1.5" />Configurações
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/funcionarios">Funcionários</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/usuarios">Usuários</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Button asChild>
+              <Link to="/pdv"><Flame className="w-4 h-4 mr-1.5" />Novo pedido</Link>
+            </Button>
+          </div>
         }
       />
       <div className="px-8 pb-8 space-y-6">
