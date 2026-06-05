@@ -19,6 +19,14 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+const fmtCurrencyInput = (n: number) =>
+  n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const parseCurrencyInput = (v: string) => {
+  const clean = v.replace(/[^\d,]/g, "").replace(",", ".");
+  return Number(clean) || 0;
+};
+
 export const Route = createFileRoute("/cardapio")({
   head: () => ({ meta: [{ title: "Cardápio — Brasa POS" }] }),
   component: CardapioPage,
@@ -146,7 +154,7 @@ function CardapioPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Preço</Label>
-                  <Input inputMode="decimal" value={String(editing.price)} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value.replace(",", ".")) || 0 })} />
+                  <Input inputMode="decimal" value={fmtCurrencyInput(editing.price)} onChange={(e) => setEditing({ ...editing, price: parseCurrencyInput(e.target.value) })} />
                 </div>
                 <div>
                   <Label>Categoria</Label>
