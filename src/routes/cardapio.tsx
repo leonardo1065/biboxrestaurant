@@ -106,7 +106,7 @@ function CardapioPage() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing && menu.some((m) => m.id === editing.id) ? "Editar item" : "Novo item"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3">
