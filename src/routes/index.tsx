@@ -4,7 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useStore, orderTotal, orderPaid } from "@/lib/store";
 import { brl } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Flame, ChefHat, UtensilsCrossed, Bike, Users, Wallet } from "lucide-react";
+import { Flame, ChefHat, UtensilsCrossed, Bike, Users, Wallet, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
