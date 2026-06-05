@@ -19,6 +19,14 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+const fmtCurrencyInput = (n: number) =>
+  n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const parseCurrencyInput = (v: string) => {
+  const clean = v.replace(/[^\d,]/g, "").replace(",", ".");
+  return Number(clean) || 0;
+};
+
 export const Route = createFileRoute("/cardapio")({
   head: () => ({ meta: [{ title: "Cardápio — Brasa POS" }] }),
   component: CardapioPage,
