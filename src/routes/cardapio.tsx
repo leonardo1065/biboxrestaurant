@@ -33,6 +33,17 @@ function CardapioPage() {
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const [open, setOpen] = useState(false);
 
+  const onPickImage = (file: File) => {
+    if (!editing) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Imagem muito grande (máx. 2MB)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setEditing({ ...editing, image: String(reader.result) });
+    reader.readAsDataURL(file);
+  };
+
   const cats = Object.keys(categoryLabels) as MenuCategory[];
 
   return (
@@ -101,6 +112,37 @@ function CardapioPage() {
             <div className="grid gap-3">
               <div><Label>Nome</Label><Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
               <div><Label>Descrição</Label><Input value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
+              <div className="grid gap-2">
+                <Label>Foto do item</Label>
+                {editing.image && (
+                  <div className="relative w-full aspect-[4/3] bg-muted rounded-md overflow-hidden">
+                    <img src={editing.image} alt="Pré-visualização" className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={() => setEditing({ ...editing, image: undefined })}
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                )}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) onPickImage(f);
+                    e.target.value = "";
+                  }}
+                />
+                <Input
+                  placeholder="ou cole uma URL de imagem"
+                  value={editing.image && !editing.image.startsWith("data:") ? editing.image : ""}
+                  onChange={(e) => setEditing({ ...editing, image: e.target.value || undefined })}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Preço</Label>
