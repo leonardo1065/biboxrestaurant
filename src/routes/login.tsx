@@ -25,6 +25,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
 
   useEffect(() => {
     if (!loading && session && tab !== "signup") navigate({ to: "/" });
@@ -55,6 +57,19 @@ function LoginPage() {
     if (error) return toast.error(error.message);
     toast.success("Conta criada! Entrando…");
     navigate({ to: "/" });
+  };
+
+  const onForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return toast.error("Informe o e-mail");
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Enviamos um link de redefinição para seu e-mail.");
+    setForgotOpen(false);
   };
 
   return (
@@ -92,6 +107,13 @@ function LoginPage() {
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? "Entrando…" : "Entrar"}
                   </Button>
+                  <button
+                    type="button"
+                    onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                    className="block w-full text-center text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  >
+                    Esqueci minha senha
+                  </button>
                 </form>
               </TabsContent>
 
@@ -117,6 +139,30 @@ function LoginPage() {
             </Tabs>
           </CardContent>
         </Card>
+
+        {forgotOpen && (
+          <Card className="border-border mt-4">
+            <CardContent className="p-5">
+              <form onSubmit={onForgot} className="space-y-3">
+                <div className="font-medium text-sm">Redefinir senha</div>
+                <p className="text-xs text-muted-foreground">
+                  Enviaremos um link para você criar uma nova senha.
+                </p>
+                <Field label="E-mail">
+                  <Input type="email" required value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
+                </Field>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setForgotOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={busy}>
+                    {busy ? "Enviando…" : "Enviar link"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
