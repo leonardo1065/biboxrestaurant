@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 const parseCurrencyInput = (v: string) => {
@@ -58,11 +58,16 @@ function CardapioPage() {
         title="Cardápio"
         description="Pratos, bebidas e disponibilidade."
         actions={
+          <>
+          <Button variant="outline" asChild>
+            <Link to="/"><ArrowLeft className="w-4 h-4 mr-1.5" />Painel</Link>
+          </Button>
           <Button onClick={() => { const it: MenuItem = {
             id: crypto.randomUUID(), name: "", price: 0, category: "executivos", available: true,
           }; setEditing(it); setPriceText(""); setOpen(true); }}>
             <Plus className="w-4 h-4 mr-1.5" />Novo item
           </Button>
+          </>
         }
       />
       <div className="px-8 pb-8 space-y-8">

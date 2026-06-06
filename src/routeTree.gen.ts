@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as PdvRouteImport } from './routes/pdv'
@@ -29,6 +30,11 @@ import { Route as FuncionariosIdRouteImport } from './routes/funcionarios.$id'
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/usuarios': typeof UsuariosRoute
   '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/usuarios': typeof UsuariosRoute
   '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/pdv': typeof PdvRoute
   '/pedidos': typeof PedidosRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/usuarios': typeof UsuariosRoute
   '/funcionarios/$id': typeof FuncionariosIdRoute
   '/pedido/$id': typeof PedidoIdRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/reset-password'
     | '/usuarios'
     | '/funcionarios/$id'
     | '/pedido/$id'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/reset-password'
     | '/usuarios'
     | '/funcionarios/$id'
     | '/pedido/$id'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/pdv'
     | '/pedidos'
     | '/relatorios'
+    | '/reset-password'
     | '/usuarios'
     | '/funcionarios/$id'
     | '/pedido/$id'
@@ -232,6 +244,7 @@ export interface RootRouteChildren {
   PdvRoute: typeof PdvRoute
   PedidosRoute: typeof PedidosRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   UsuariosRoute: typeof UsuariosRoute
   PedidoIdRoute: typeof PedidoIdRoute
   ReciboIdRoute: typeof ReciboIdRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -379,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   PdvRoute: PdvRoute,
   PedidosRoute: PedidosRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   UsuariosRoute: UsuariosRoute,
   PedidoIdRoute: PedidoIdRoute,
   ReciboIdRoute: ReciboIdRoute,
