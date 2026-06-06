@@ -19,11 +19,8 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-const fmtCurrencyInput = (n: number) =>
-  n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
 const parseCurrencyInput = (v: string) => {
-  const clean = v.replace(/[^\d,]/g, "").replace(",", ".");
+  const clean = v.replace(/[^\d,.]/g, "").replace(/\./g, "").replace(",", ".");
   return Number(clean) || 0;
 };
 
@@ -40,6 +37,7 @@ function CardapioPage() {
 
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const [open, setOpen] = useState(false);
+  const [priceText, setPriceText] = useState("");
 
   const onPickImage = (file: File) => {
     if (!editing) return;
@@ -60,9 +58,9 @@ function CardapioPage() {
         title="Cardápio"
         description="Pratos, bebidas e disponibilidade."
         actions={
-          <Button onClick={() => { setEditing({
+          <Button onClick={() => { const it: MenuItem = {
             id: crypto.randomUUID(), name: "", price: 0, category: "executivos", available: true,
-          }); setOpen(true); }}>
+          }; setEditing(it); setPriceText(""); setOpen(true); }}>
             <Plus className="w-4 h-4 mr-1.5" />Novo item
           </Button>
         }
@@ -96,7 +94,7 @@ function CardapioPage() {
                           {m.available ? "Disponível" : "Esgotado"}
                         </label>
                         <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" onClick={() => { setEditing(m); setOpen(true); }}>
+                          <Button size="icon" variant="ghost" onClick={() => { setEditing(m); setPriceText(m.price ? m.price.toFixed(2).replace(".", ",") : ""); setOpen(true); }}>
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button size="icon" variant="ghost" onClick={() => { if (confirm("Excluir item?")) remove(m.id); }}>
@@ -154,7 +152,16 @@ function CardapioPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Preço</Label>
-                  <Input inputMode="decimal" value={fmtCurrencyInput(editing.price)} onChange={(e) => setEditing({ ...editing, price: parseCurrencyInput(e.target.value) })} />
+                  <Input
+                    inputMode="decimal"
+                    placeholder="R$ 0,00"
+                    value={priceText}
+                    onChange={(e) => setPriceText(e.target.value)}
+                    onBlur={() => {
+                      const n = parseCurrencyInput(priceText);
+                      setPriceText(n ? n.toFixed(2).replace(".", ",") : "");
+                    }}
+                  />
                 </div>
                 <div>
                   <Label>Categoria</Label>
@@ -173,7 +180,7 @@ function CardapioPage() {
             <Button onClick={() => {
               if (!editing) return;
               if (!editing.name.trim()) { toast.error("Informe o nome"); return; }
-              upsert(editing);
+              upsert({ ...editing, price: parseCurrencyInput(priceText) });
               toast.success("Item salvo");
               setOpen(false);
             }}>Salvar</Button>
