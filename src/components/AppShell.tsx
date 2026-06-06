@@ -15,7 +15,7 @@ import {
   Wallet,
   UserPlus,
 } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, ROLE_LABEL } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
