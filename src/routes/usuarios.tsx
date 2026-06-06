@@ -14,6 +14,9 @@ import {
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Crown, ShieldOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — Brasa POS" }] }),
@@ -28,6 +31,9 @@ function UsersPage() {
   const { hasRole, loading, user, refresh } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [verifying, setVerifying] = useState(false);
 
   const load = async () => {
     const [{ data: profiles }, { data: roles }] = await Promise.all([
@@ -49,8 +55,8 @@ function UsersPage() {
   };
 
   useEffect(() => {
-    if (!loading && hasRole("admin")) void load();
-  }, [loading, hasRole]);
+    if (!loading && hasRole("admin") && unlocked) void load();
+  }, [loading, hasRole, unlocked]);
 
   if (loading) return null;
 
@@ -59,6 +65,51 @@ function UsersPage() {
       <AppShell>
         <PageHeader title="Usuários" />
         <div className="px-8"><p className="text-sm text-muted-foreground">Acesso restrito a administradores.</p></div>
+      </AppShell>
+    );
+  }
+
+  if (!unlocked) {
+    const verify = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!user?.email) return;
+      setVerifying(true);
+      const { error } = await supabase.auth.signInWithPassword({ email: user.email, password: pwd });
+      setVerifying(false);
+      if (error) return toast.error("Senha incorreta");
+      setPwd("");
+      setUnlocked(true);
+    };
+    return (
+      <AppShell>
+        <PageHeader title="Usuários" description="Confirme sua senha de administrador para continuar" />
+        <div className="px-8 pb-8 max-w-sm">
+          <Card className="border-border">
+            <CardContent className="p-5">
+              <form onSubmit={verify} className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Lock className="w-4 h-4" /> Acesso restrito
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Apenas o administrador pode acessar esta área. Digite sua senha para continuar.
+                </p>
+                <div className="space-y-1.5">
+                  <Label>Senha</Label>
+                  <Input
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={pwd}
+                    onChange={(e) => setPwd(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={verifying}>
+                  {verifying ? "Verificando…" : "Desbloquear"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </AppShell>
     );
   }
