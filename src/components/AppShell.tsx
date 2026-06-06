@@ -40,10 +40,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { loading, session, profile, roles, hasRole, signOut } = useAuth();
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   // Notificação de pedido pronto
   const orders = useStore((s) => s.orders);
