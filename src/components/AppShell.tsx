@@ -88,6 +88,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-xs text-muted-foreground">Restaurante</div>
             </div>
           </div>
+          <div className="mt-2 text-[11px] text-muted-foreground tabular-nums">
+            {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+          </div>
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {nav.map(({ to, label, icon: Icon }) => {
