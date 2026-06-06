@@ -15,7 +15,7 @@ import {
   Wallet,
   UserPlus,
 } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, ROLE_LABEL } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -40,10 +40,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { loading, session, profile, roles, hasRole, signOut } = useAuth();
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   // Notificação de pedido pronto
   const orders = useStore((s) => s.orders);
@@ -81,6 +87,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="font-semibold leading-tight">Brasa POS</div>
               <div className="text-xs text-muted-foreground">Restaurante</div>
             </div>
+          </div>
+          <div className="mt-2 text-[11px] text-muted-foreground tabular-nums">
+            {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
         <nav className="flex-1 p-2 space-y-1">
