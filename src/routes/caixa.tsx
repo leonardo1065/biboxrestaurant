@@ -47,6 +47,31 @@ function CaixaPage() {
     ? orders.filter((o) => o.payments.some((p) => new Date(p.at).getTime() >= sessionStart!)).length
     : 0;
 
+  const methodLabel: Record<PaymentMethod, string> = {
+    dinheiro: "Dinheiro",
+    pix: "PIX",
+    debito: "Cartão Débito",
+    credito: "Cartão Crédito",
+  };
+
+  const movements = sessionStart
+    ? orders
+        .flatMap((o) =>
+          o.payments
+            .filter((p) => new Date(p.at).getTime() >= sessionStart!)
+            .map((p) => ({
+              paymentId: p.id,
+              orderCode: o.code,
+              orderType: o.type,
+              tableNumber: o.tableNumber,
+              method: p.method,
+              amount: p.amount - (p.change ?? 0),
+              at: p.at,
+            })),
+        )
+        .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    : [];
+
   return (
     <AppShell>
       <PageHeader title="Caixa" description="Abertura, fechamento e movimentação por forma de pagamento." />
@@ -118,6 +143,39 @@ function CaixaPage() {
 
         <div>
           <h2 className="text-sm uppercase tracking-wide text-muted-foreground mb-3">Histórico de caixas</h2>
+          {current && (
+            <Card className="border-border mb-4">
+              <CardContent className="p-0">
+                <div className="p-4 border-b border-border flex items-center justify-between">
+                  <h3 className="font-medium text-sm">Movimento do caixa — pedidos pagos</h3>
+                  <span className="text-xs text-muted-foreground">{movements.length} pagamento(s)</span>
+                </div>
+                <div className="divide-y divide-border">
+                  {movements.length === 0 && (
+                    <div className="p-4 text-sm text-muted-foreground">Nenhum pagamento nesta sessão ainda.</div>
+                  )}
+                  {movements.map((m) => (
+                    <div key={m.paymentId} className="p-3 flex items-center justify-between text-sm gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center justify-center min-w-[3rem] px-2 py-1 rounded-md bg-primary/10 text-primary font-semibold text-sm">
+                          #{String(m.orderCode).padStart(4, "0")}
+                        </span>
+                        <div>
+                          <div className="font-medium capitalize">
+                            {m.orderType === "mesa" ? `Mesa ${m.tableNumber ?? ""}` : m.orderType}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {methodLabel[m.method]} · {new Date(m.at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="font-semibold tabular-nums">{brl(m.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
           <Card className="border-border">
             <CardContent className="p-0 divide-y divide-border">
               {sessions.length === 0 && <div className="p-4 text-sm text-muted-foreground">Sem histórico ainda.</div>}
