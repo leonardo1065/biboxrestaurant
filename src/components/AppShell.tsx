@@ -184,6 +184,11 @@ export function PageHeader({
   description?: string;
   actions?: ReactNode;
 }) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
   return (
     <div className="flex items-end justify-between gap-4 px-8 pt-8 pb-4">
       <div>
@@ -192,7 +197,12 @@ export function PageHeader({
           <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      <div className="flex items-center gap-3">
+        <div className="text-xs text-muted-foreground tabular-nums text-right">
+          {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+        </div>
+        {actions && <div className="flex gap-2">{actions}</div>}
+      </div>
     </div>
   );
 }

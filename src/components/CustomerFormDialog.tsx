@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,8 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
   const [state, setState] = useState("");
   const [reference, setReference] = useState("");
   const [loadingCep, setLoadingCep] = useState(false);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const cepRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -115,15 +117,32 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
           <div className="sm:col-span-4">
             <Label>Nome *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome completo" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nome completo"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); phoneRef.current?.focus(); } }}
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>Telefone *</Label>
-            <Input value={formatPhone(phone)} onChange={(e) => setPhone(onlyDigits(e.target.value))} placeholder="(11) 99999-9999" />
+            <Input
+              ref={phoneRef}
+              value={formatPhone(phone)}
+              onChange={(e) => setPhone(onlyDigits(e.target.value))}
+              placeholder="(11) 99999-9999"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); cepRef.current?.focus(); } }}
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>CEP {loadingCep && <span className="text-xs text-muted-foreground">(buscando…)</span>}</Label>
-            <Input value={formatCep(cep)} onChange={(e) => setCep(onlyDigits(e.target.value))} onBlur={onCepBlur} placeholder="00000-000" />
+            <Input
+              ref={cepRef}
+              value={formatCep(cep)}
+              onChange={(e) => setCep(onlyDigits(e.target.value))}
+              onBlur={onCepBlur}
+              placeholder="00000-000"
+            />
           </div>
           <div className="sm:col-span-3">
             <Label>Rua</Label>
