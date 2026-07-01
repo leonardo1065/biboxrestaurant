@@ -74,11 +74,20 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
   };
 
   const save = () => {
-    if (!name.trim() || onlyDigits(phone).length < 10) {
-      toast.error("Informe nome e telefone válidos");
+    const cleanPhone = onlyDigits(phone);
+    const cleanCep = onlyDigits(cep);
+    if (!name.trim()) {
+      toast.error("Informe o nome do cliente");
       return;
     }
-    const cleanPhone = onlyDigits(phone);
+    if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+      toast.error("Telefone inválido. Use DDD + número (10 ou 11 dígitos)");
+      return;
+    }
+    if (cleanCep && cleanCep.length !== 8) {
+      toast.error("CEP inválido. Deve conter 8 dígitos");
+      return;
+    }
     const existsOther = customers.find((c) => c.phone === cleanPhone && c.id !== existing?.id);
     if (existsOther) {
       toast.error("Já existe um cliente com esse telefone");
@@ -87,7 +96,7 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
     const payload = {
       name: name.trim(),
       phone: cleanPhone,
-      cep: cep || undefined,
+      cep: cleanCep || undefined,
       street: street || undefined,
       number: number || undefined,
       complement: complement || undefined,
