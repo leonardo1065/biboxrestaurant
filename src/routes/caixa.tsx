@@ -9,7 +9,7 @@ import { useStore } from "@/lib/store";
 import { brl } from "@/lib/format";
 import { toast } from "sonner";
 import type { PaymentMethod } from "@/lib/types";
-import { Printer } from "lucide-react";
+import { Printer, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/caixa")({
   head: () => ({ meta: [{ title: "Caixa — Brasa POS" }] }),
@@ -69,6 +69,7 @@ function CaixaPage() {
               method: p.method,
               amount: p.amount - (p.change ?? 0),
               at: p.at,
+              closed: o.status === "fechado",
             })),
         )
         .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
@@ -172,6 +173,9 @@ function CaixaPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
+                        <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full border ${m.closed ? "border-primary/40 text-primary" : "border-border text-muted-foreground"}`}>
+                          <CheckCircle2 className="w-3 h-3 mr-1" />{m.closed ? "Finalizado e concluído" : "Pago"}
+                        </span>
                         <span className="font-semibold tabular-nums">{brl(m.amount)}</span>
                         <Button asChild size="sm" variant="ghost" title="Imprimir recibo">
                           <Link to="/recibo/$id" params={{ id: m.orderId }} target="_blank">
