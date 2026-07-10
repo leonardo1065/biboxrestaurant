@@ -18,6 +18,14 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
+import { QrCode, Printer } from "lucide-react";
+
+export const menuQrPayload = (id: string) => `brasapos:item:${id}`;
+export const parseMenuQrPayload = (raw: string): string | null => {
+  const m = raw.trim().match(/^brasapos:item:(.+)$/);
+  return m ? m[1] : null;
+};
 
 const parseCurrencyInput = (v: string) => {
   const clean = v.replace(/[^\d,.]/g, "").replace(/\./g, "").replace(",", ".");
@@ -38,6 +46,7 @@ function CardapioPage() {
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const [open, setOpen] = useState(false);
   const [priceText, setPriceText] = useState("");
+  const [qrItem, setQrItem] = useState<MenuItem | null>(null);
 
   const onPickImage = (file: File) => {
     if (!editing) return;
@@ -99,6 +108,9 @@ function CardapioPage() {
                           {m.available ? "Disponível" : "Esgotado"}
                         </label>
                         <div className="flex gap-1">
+                          <Button size="icon" variant="ghost" title="QR do item" onClick={() => setQrItem(m)}>
+                            <QrCode className="w-4 h-4" />
+                          </Button>
                           <Button size="icon" variant="ghost" onClick={() => { setEditing(m); setPriceText(m.price ? m.price.toFixed(2).replace(".", ",") : ""); setOpen(true); }}>
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -190,6 +202,38 @@ function CardapioPage() {
               setOpen(false);
             }}>Salvar</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!qrItem} onOpenChange={(o) => !o && setQrItem(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>QR do item</DialogTitle></DialogHeader>
+          {qrItem && (
+            <div className="space-y-3">
+              <div id="qr-print-area" className="flex flex-col items-center gap-2 bg-white text-black p-4 rounded-md">
+                <div className="text-sm font-semibold text-center">{qrItem.name}</div>
+                <QRCodeSVG value={menuQrPayload(qrItem.id)} size={220} includeMargin />
+                <div className="text-xs">{brl(qrItem.price)}</div>
+                <div className="text-[10px] opacity-60">{menuQrPayload(qrItem.id)}</div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Cole este QR ao lado do item. No pedido, use "Escanear QR" para adicionar automaticamente.
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setQrItem(null)}>Fechar</Button>
+                <Button onClick={() => {
+                  const el = document.getElementById("qr-print-area");
+                  if (!el) return;
+                  const w = window.open("", "_blank", "width=420,height=560");
+                  if (!w) return;
+                  w.document.write(`<html><head><title>QR ${qrItem.name}</title><style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}</style></head><body>${el.outerHTML}<script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300)}</script></body></html>`);
+                  w.document.close();
+                }}>
+                  <Printer className="w-4 h-4 mr-1.5" />Imprimir
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </AppShell>
