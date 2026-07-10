@@ -18,7 +18,9 @@ import { brl, formatPhone } from "@/lib/format";
 import { categoryLabels } from "@/lib/seed";
 import type { MenuCategory, MenuItem, PaymentMethod } from "@/lib/types";
 import { toast } from "sonner";
-import { Minus, Plus, Printer, Trash2, X, Send, CheckCircle2 } from "lucide-react";
+import { Minus, Plus, Printer, Trash2, X, Send, CheckCircle2, ScanLine } from "lucide-react";
+import { QRScanner } from "@/components/QRScanner";
+import { parseMenuQrPayload } from "@/routes/cardapio";
 
 export const Route = createFileRoute("/pedido/$id")({
   head: () => ({ meta: [{ title: "Pedido — Brasa POS" }] }),
@@ -48,6 +50,7 @@ function PedidoPage() {
   const [payAmount, setPayAmount] = useState("");
   const [payReceived, setPayReceived] = useState("");
   const [feeInput, setFeeInput] = useState<string>(order?.deliveryFee != null ? String(order.deliveryFee).replace(".", ",") : "");
+  const [scanOpen, setScanOpen] = useState(false);
 
   const remaining = order ? orderRemaining(order) : 0;
   const customer = order?.customerId ? customers.find((c) => c.id === order.customerId) : undefined;
@@ -117,6 +120,11 @@ function PedidoPage() {
             <Button asChild variant="secondary"><Link to="/recibo/$id" params={{ id: order.id }} target="_blank">
               <Printer className="w-4 h-4 mr-1.5" />{order.type === "delivery" ? "Cupom" : "Recibo"}
             </Link></Button>
+            {order.status !== "fechado" && (
+              <Button variant="secondary" onClick={() => setScanOpen(true)}>
+                <ScanLine className="w-4 h-4 mr-1.5" />Escanear QR
+              </Button>
+            )}
             {canConfirm && (
               <Button variant="default" onClick={() => {
                 confirmOrder(order.id);
@@ -405,6 +413,21 @@ function PedidoPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <QRScanner
+        open={scanOpen}
+        onOpenChange={setScanOpen}
+        onScan={(decoded) => {
+          const itemId = parseMenuQrPayload(decoded);
+          if (!itemId) { toast.error("QR inválido"); return; }
+          const item = menu.find((m) => m.id === itemId);
+          if (!item) { toast.error("Item não encontrado no cardápio"); return; }
+          if (!item.available) { toast.error(`${item.name} está esgotado`); return; }
+          addItemToOrder(order.id, item.id, 1);
+          toast.success(`${item.name} adicionado ao pedido #${order.code}`);
+          setScanOpen(false);
+        }}
+      />
     </AppShell>
   );
 }
