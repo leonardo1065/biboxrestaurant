@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store";
 import { brl } from "@/lib/format";
 import { toast } from "sonner";
 import type { PaymentMethod } from "@/lib/types";
+import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/caixa")({
   head: () => ({ meta: [{ title: "Caixa — Brasa POS" }] }),
@@ -61,6 +62,7 @@ function CaixaPage() {
             .filter((p) => new Date(p.at).getTime() >= sessionStart!)
             .map((p) => ({
               paymentId: p.id,
+              orderId: o.id,
               orderCode: o.code,
               orderType: o.type,
               tableNumber: o.tableNumber,
@@ -169,7 +171,14 @@ function CaixaPage() {
                           </div>
                         </div>
                       </div>
-                      <span className="font-semibold tabular-nums">{brl(m.amount)}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold tabular-nums">{brl(m.amount)}</span>
+                        <Button asChild size="sm" variant="ghost" title="Imprimir recibo">
+                          <Link to="/recibo/$id" params={{ id: m.orderId }} target="_blank">
+                            <Printer className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
