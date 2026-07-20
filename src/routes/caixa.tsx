@@ -43,7 +43,9 @@ function CaixaPage() {
 
   const tipsTotal = paymentsToday.reduce((s, p) => s + (p.tip ?? 0), 0);
 
-  const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
+  // Dinheiro físico na gaveta = abertura + vendas em dinheiro + caixinha (a caixinha
+  // é dinheiro que o cliente deixou e permanece no caixa até ser dividida).
+  const expectedCash = current ? current.openingAmount + totals.dinheiro + tipsTotal : 0;
   const cashSalesNet = totals.dinheiro - (current?.openingAmount ?? 0);
   const totalMovimento = totals.dinheiro + totals.pix + totals.debito + totals.credito;
   const ordersPaidToday = sessionStart
