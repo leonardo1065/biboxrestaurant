@@ -441,8 +441,12 @@ function PedidoPage() {
                 <ul className="text-sm divide-y divide-border">
                   {order.payments.map((p) => (
                     <li key={p.id} className="py-2 flex justify-between">
-                      <span className="capitalize">{p.method}{p.change ? ` (troco ${brl(p.change)})` : ""}</span>
-                      <span className="font-medium">{brl(p.amount - (p.change ?? 0))}</span>
+                      <span className="capitalize">
+                        {p.method}
+                        {p.change ? ` (troco ${brl(p.change)})` : ""}
+                        {p.tip ? ` (caixinha ${brl(p.tip)})` : ""}
+                      </span>
+                      <span className="font-medium">{brl(p.amount - (p.change ?? 0) - (p.tip ?? 0))}</span>
                     </li>
                   ))}
                 </ul>
