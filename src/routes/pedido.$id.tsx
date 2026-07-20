@@ -474,3 +474,75 @@ function Row({ label, value, bold, highlight }: { label: string; value: string; 
     </div>
   );
 }
+
+type Step = "aberto" | "enviado" | "fechado" | "concluido";
+const STEPS: { key: Step; label: string }[] = [
+  { key: "aberto", label: "Aberto" },
+  { key: "enviado", label: "Enviado" },
+  { key: "fechado", label: "Fechado" },
+  { key: "concluido", label: "Concluído" },
+];
+
+function StatusPanel({
+  step,
+  onEnviarEFechar,
+  onFinalizarEConcluir,
+  remaining,
+}: {
+  step: Step;
+  onEnviarEFechar: () => void;
+  onFinalizarEConcluir: () => void;
+  remaining: number;
+}) {
+  const currentIdx = STEPS.findIndex((s) => s.key === step);
+  return (
+    <Card className="border-border">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-medium text-sm">Status do pedido</h2>
+          <Badge variant="secondary" className="capitalize">{STEPS[currentIdx].label}</Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          {STEPS.map((s, i) => {
+            const done = i < currentIdx;
+            const active = i === currentIdx;
+            return (
+              <div key={s.key} className="flex items-center gap-2 flex-1 min-w-0">
+                <div className={`flex items-center gap-2 min-w-0 ${active ? "text-primary" : done ? "text-foreground" : "text-muted-foreground"}`}>
+                  <div className={`w-6 h-6 rounded-full grid place-items-center text-xs font-semibold shrink-0 ${
+                    active ? "bg-primary text-primary-foreground" : done ? "bg-primary/20 text-primary" : "bg-muted"
+                  }`}>
+                    {done ? "✓" : i + 1}
+                  </div>
+                  <span className="text-xs font-medium truncate">{s.label}</span>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className={`h-px flex-1 ${i < currentIdx ? "bg-primary/40" : "bg-border"}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          {step === "aberto" && (
+            <Button onClick={onEnviarEFechar}>
+              <Send className="w-4 h-4 mr-1.5" />Enviar e fechar
+            </Button>
+          )}
+          {(step === "enviado" || step === "fechado") && (
+            <Button
+              onClick={onFinalizarEConcluir}
+              disabled={remaining > 0}
+              title={remaining > 0 ? `Falta ${brl(remaining)}` : undefined}
+            >
+              <CheckCircle2 className="w-4 h-4 mr-1.5" />Finalizar e concluir
+            </Button>
+          )}
+          {step === "concluido" && (
+            <span className="text-xs text-muted-foreground">Pedido finalizado e concluído.</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
