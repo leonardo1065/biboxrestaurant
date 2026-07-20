@@ -53,6 +53,7 @@ export interface Payment {
   method: PaymentMethod;
   amount: number;
   change?: number; // troco em dinheiro
+  tip?: number; // caixinha (diferença em dinheiro que o cliente deixou para os funcionários)
   at: string;
 }
 
