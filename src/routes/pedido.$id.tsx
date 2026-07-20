@@ -109,6 +109,34 @@ function PedidoPage() {
 
   const canConfirm = order.items.length > 0 && !order.confirmedAt && order.status !== "fechado";
 
+  // Derive a 4-step status: Aberto → Enviado → Fechado → Concluído.
+  const step: "aberto" | "enviado" | "fechado" | "concluido" =
+    order.status === "fechado" && remaining <= 0
+      ? "concluido"
+      : order.status === "fechado"
+      ? "fechado"
+      : order.confirmedAt
+      ? "enviado"
+      : "aberto";
+
+  const doEnviarEFechar = () => {
+    if (order.items.length === 0) { toast.error("Adicione itens ao pedido"); return; }
+    if (!order.confirmedAt) confirmOrder(order.id);
+    closeOrder(order.id);
+    toast.success(`Pedido #${order.code} enviado e fechado`);
+  };
+
+  const doFinalizarEConcluir = () => {
+    if (remaining > 0) {
+      toast.error(`Falta ${brl(remaining)} — registre o pagamento antes de concluir`);
+      return;
+    }
+    if (order.status !== "fechado") closeOrder(order.id);
+    setOrderStatus(order.id, "fechado");
+    toast.success(`Pedido #${order.code} finalizado e concluído`);
+    navigate({ to: "/pedidos" });
+  };
+
   return (
     <AppShell>
       <PageHeader
@@ -149,6 +177,12 @@ function PedidoPage() {
       <div className="px-8 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT: items + menu */}
         <div className="lg:col-span-2 space-y-6">
+          <StatusPanel
+            step={step}
+            onEnviarEFechar={doEnviarEFechar}
+            onFinalizarEConcluir={doFinalizarEConcluir}
+            remaining={remaining}
+          />
           {customer && (
             <Card className="border-border">
               <CardContent className="p-4 text-sm space-y-1">
@@ -438,5 +472,77 @@ function Row({ label, value, bold, highlight }: { label: string; value: string; 
       <span className={highlight ? "text-primary" : "text-muted-foreground"}>{label}</span>
       <span className={`${bold ? "font-semibold" : ""} ${highlight ? "text-primary" : ""}`}>{value}</span>
     </div>
+  );
+}
+
+type Step = "aberto" | "enviado" | "fechado" | "concluido";
+const STEPS: { key: Step; label: string }[] = [
+  { key: "aberto", label: "Aberto" },
+  { key: "enviado", label: "Enviado" },
+  { key: "fechado", label: "Fechado" },
+  { key: "concluido", label: "Concluído" },
+];
+
+function StatusPanel({
+  step,
+  onEnviarEFechar,
+  onFinalizarEConcluir,
+  remaining,
+}: {
+  step: Step;
+  onEnviarEFechar: () => void;
+  onFinalizarEConcluir: () => void;
+  remaining: number;
+}) {
+  const currentIdx = STEPS.findIndex((s) => s.key === step);
+  return (
+    <Card className="border-border">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-medium text-sm">Status do pedido</h2>
+          <Badge variant="secondary" className="capitalize">{STEPS[currentIdx].label}</Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          {STEPS.map((s, i) => {
+            const done = i < currentIdx;
+            const active = i === currentIdx;
+            return (
+              <div key={s.key} className="flex items-center gap-2 flex-1 min-w-0">
+                <div className={`flex items-center gap-2 min-w-0 ${active ? "text-primary" : done ? "text-foreground" : "text-muted-foreground"}`}>
+                  <div className={`w-6 h-6 rounded-full grid place-items-center text-xs font-semibold shrink-0 ${
+                    active ? "bg-primary text-primary-foreground" : done ? "bg-primary/20 text-primary" : "bg-muted"
+                  }`}>
+                    {done ? "✓" : i + 1}
+                  </div>
+                  <span className="text-xs font-medium truncate">{s.label}</span>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className={`h-px flex-1 ${i < currentIdx ? "bg-primary/40" : "bg-border"}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          {step === "aberto" && (
+            <Button onClick={onEnviarEFechar}>
+              <Send className="w-4 h-4 mr-1.5" />Enviar e fechar
+            </Button>
+          )}
+          {(step === "enviado" || step === "fechado") && (
+            <Button
+              onClick={onFinalizarEConcluir}
+              disabled={remaining > 0}
+              title={remaining > 0 ? `Falta ${brl(remaining)}` : undefined}
+            >
+              <CheckCircle2 className="w-4 h-4 mr-1.5" />Finalizar e concluir
+            </Button>
+          )}
+          {step === "concluido" && (
+            <span className="text-xs text-muted-foreground">Pedido finalizado e concluído.</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
