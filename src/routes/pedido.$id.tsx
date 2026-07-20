@@ -109,6 +109,34 @@ function PedidoPage() {
 
   const canConfirm = order.items.length > 0 && !order.confirmedAt && order.status !== "fechado";
 
+  // Derive a 4-step status: Aberto → Enviado → Fechado → Concluído.
+  const step: "aberto" | "enviado" | "fechado" | "concluido" =
+    order.status === "fechado" && remaining <= 0
+      ? "concluido"
+      : order.status === "fechado"
+      ? "fechado"
+      : order.confirmedAt
+      ? "enviado"
+      : "aberto";
+
+  const doEnviarEFechar = () => {
+    if (order.items.length === 0) { toast.error("Adicione itens ao pedido"); return; }
+    if (!order.confirmedAt) confirmOrder(order.id);
+    closeOrder(order.id);
+    toast.success(`Pedido #${order.code} enviado e fechado`);
+  };
+
+  const doFinalizarEConcluir = () => {
+    if (remaining > 0) {
+      toast.error(`Falta ${brl(remaining)} — registre o pagamento antes de concluir`);
+      return;
+    }
+    if (order.status !== "fechado") closeOrder(order.id);
+    setOrderStatus(order.id, "fechado");
+    toast.success(`Pedido #${order.code} finalizado e concluído`);
+    navigate({ to: "/pedidos" });
+  };
+
   return (
     <AppShell>
       <PageHeader
@@ -149,6 +177,12 @@ function PedidoPage() {
       <div className="px-8 pb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT: items + menu */}
         <div className="lg:col-span-2 space-y-6">
+          <StatusPanel
+            step={step}
+            onEnviarEFechar={doEnviarEFechar}
+            onFinalizarEConcluir={doFinalizarEConcluir}
+            remaining={remaining}
+          />
           {customer && (
             <Card className="border-border">
               <CardContent className="p-4 text-sm space-y-1">
