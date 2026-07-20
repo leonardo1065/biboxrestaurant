@@ -398,9 +398,35 @@ function PedidoPage() {
                   <div>
                     <Label className="text-xs">Valor recebido em dinheiro</Label>
                     <Input inputMode="decimal" value={payReceived} onChange={(e) => setPayReceived(e.target.value)} placeholder="0,00" />
-                    {payReceived && payAmount && Number(payReceived.replace(",", ".")) >= Number(payAmount.replace(",", ".")) && (
-                      <div className="text-xs text-primary mt-1">Troco: {brl(Number(payReceived.replace(",", ".")) - Number(payAmount.replace(",", ".")))}</div>
-                    )}
+                    {(() => {
+                      const rec = Number(payReceived.replace(",", ".")) || 0;
+                      const amt = Number(payAmount.replace(",", ".")) || 0;
+                      const diff = rec - amt;
+                      if (!payReceived || !payAmount || diff <= 0) return null;
+                      return (
+                        <div className="mt-2 space-y-1.5">
+                          <div className="text-xs text-muted-foreground">Diferença: <span className="text-primary font-semibold">{brl(diff)}</span></div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setExcessMode("troco")}
+                              className={`text-xs rounded-md border px-2 py-1.5 text-left ${excessMode === "troco" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                            >
+                              <div className="font-semibold">Devolver troco</div>
+                              <div className="opacity-80">Entregar {brl(diff)} ao cliente</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExcessMode("caixinha")}
+                              className={`text-xs rounded-md border px-2 py-1.5 text-left ${excessMode === "caixinha" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                            >
+                              <div className="font-semibold">Caixinha</div>
+                              <div className="opacity-80">Dividir {brl(diff)} entre funcionários</div>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 <Button className="w-full" onClick={doPay}>Registrar pagamento</Button>
