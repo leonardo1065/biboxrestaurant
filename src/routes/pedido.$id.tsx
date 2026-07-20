@@ -49,6 +49,7 @@ function PedidoPage() {
   const [payMethod, setPayMethod] = useState<PaymentMethod>("dinheiro");
   const [payAmount, setPayAmount] = useState("");
   const [payReceived, setPayReceived] = useState("");
+  const [excessMode, setExcessMode] = useState<"troco" | "caixinha">("troco");
   const [feeInput, setFeeInput] = useState<string>(order?.deliveryFee != null ? String(order.deliveryFee).replace(".", ",") : "");
   const [scanOpen, setScanOpen] = useState(false);
 
@@ -88,16 +89,22 @@ function PedidoPage() {
     if (amt <= 0) { toast.error("Informe o valor"); return; }
     let registeredAmount = amt;
     let change: number | undefined;
+    let tip: number | undefined;
     if (payMethod === "dinheiro" && payReceived) {
       const rec = Number(payReceived.replace(",", ".")) || 0;
       if (rec >= amt) {
         registeredAmount = rec;
-        change = rec - amt;
+        const diff = rec - amt;
+        if (diff > 0) {
+          if (excessMode === "caixinha") tip = diff;
+          else change = diff;
+        }
       }
     }
-    addPayment(order.id, payMethod, registeredAmount, change);
+    addPayment(order.id, payMethod, registeredAmount, change, tip);
     setPayAmount(""); setPayReceived("");
-    toast.success(`Pagamento ${payMethod} de ${brl(amt)}${change ? ` — troco ${brl(change)}` : ""}`);
+    const extra = change ? ` — troco ${brl(change)}` : tip ? ` — caixinha ${brl(tip)}` : "";
+    toast.success(`Pagamento ${payMethod} de ${brl(amt)}${extra}`);
     if (amt >= orderRemaining(order)) {
       setOrderStatus(order.id, "pago");
     }
@@ -391,9 +398,35 @@ function PedidoPage() {
                   <div>
                     <Label className="text-xs">Valor recebido em dinheiro</Label>
                     <Input inputMode="decimal" value={payReceived} onChange={(e) => setPayReceived(e.target.value)} placeholder="0,00" />
-                    {payReceived && payAmount && Number(payReceived.replace(",", ".")) >= Number(payAmount.replace(",", ".")) && (
-                      <div className="text-xs text-primary mt-1">Troco: {brl(Number(payReceived.replace(",", ".")) - Number(payAmount.replace(",", ".")))}</div>
-                    )}
+                    {(() => {
+                      const rec = Number(payReceived.replace(",", ".")) || 0;
+                      const amt = Number(payAmount.replace(",", ".")) || 0;
+                      const diff = rec - amt;
+                      if (!payReceived || !payAmount || diff <= 0) return null;
+                      return (
+                        <div className="mt-2 space-y-1.5">
+                          <div className="text-xs text-muted-foreground">Diferença: <span className="text-primary font-semibold">{brl(diff)}</span></div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setExcessMode("troco")}
+                              className={`text-xs rounded-md border px-2 py-1.5 text-left ${excessMode === "troco" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                            >
+                              <div className="font-semibold">Devolver troco</div>
+                              <div className="opacity-80">Entregar {brl(diff)} ao cliente</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExcessMode("caixinha")}
+                              className={`text-xs rounded-md border px-2 py-1.5 text-left ${excessMode === "caixinha" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                            >
+                              <div className="font-semibold">Caixinha</div>
+                              <div className="opacity-80">Dividir {brl(diff)} entre funcionários</div>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 <Button className="w-full" onClick={doPay}>Registrar pagamento</Button>
@@ -408,8 +441,12 @@ function PedidoPage() {
                 <ul className="text-sm divide-y divide-border">
                   {order.payments.map((p) => (
                     <li key={p.id} className="py-2 flex justify-between">
-                      <span className="capitalize">{p.method}{p.change ? ` (troco ${brl(p.change)})` : ""}</span>
-                      <span className="font-medium">{brl(p.amount - (p.change ?? 0))}</span>
+                      <span className="capitalize">
+                        {p.method}
+                        {p.change ? ` (troco ${brl(p.change)})` : ""}
+                        {p.tip ? ` (caixinha ${brl(p.tip)})` : ""}
+                      </span>
+                      <span className="font-medium">{brl(p.amount - (p.change ?? 0) - (p.tip ?? 0))}</span>
                     </li>
                   ))}
                 </ul>

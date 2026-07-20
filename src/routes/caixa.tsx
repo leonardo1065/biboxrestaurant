@@ -35,13 +35,17 @@ function CaixaPage() {
 
   const totals = paymentsToday.reduce<Record<PaymentMethod, number>>(
     (acc, p) => {
-      acc[p.method] = (acc[p.method] ?? 0) + (p.amount - (p.change ?? 0));
+      acc[p.method] = (acc[p.method] ?? 0) + (p.amount - (p.change ?? 0) - (p.tip ?? 0));
       return acc;
     },
     { dinheiro: 0, pix: 0, debito: 0, credito: 0 },
   );
 
-  const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
+  const tipsTotal = paymentsToday.reduce((s, p) => s + (p.tip ?? 0), 0);
+
+  // Dinheiro físico na gaveta = abertura + vendas em dinheiro + caixinha (a caixinha
+  // é dinheiro que o cliente deixou e permanece no caixa até ser dividida).
+  const expectedCash = current ? current.openingAmount + totals.dinheiro + tipsTotal : 0;
   const cashSalesNet = totals.dinheiro - (current?.openingAmount ?? 0);
   const totalMovimento = totals.dinheiro + totals.pix + totals.debito + totals.credito;
   const ordersPaidToday = sessionStart
@@ -67,7 +71,8 @@ function CaixaPage() {
               orderType: o.type,
               tableNumber: o.tableNumber,
               method: p.method,
-              amount: p.amount - (p.change ?? 0),
+              amount: p.amount - (p.change ?? 0) - (p.tip ?? 0),
+              tip: p.tip ?? 0,
               at: p.at,
               closed: o.status === "fechado",
             })),
@@ -114,6 +119,9 @@ function CaixaPage() {
               <Stat label="Total venda Débito" value={brl(totals.debito)} />
               <Stat label="Total venda Crédito" value={brl(totals.credito)} />
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
+              <Stat label="Caixinha (gorjetas)" value={brl(tipsTotal)} />
+            </div>
             <Card className="border-border max-w-md">
               <CardContent className="p-5 space-y-2 text-sm">
                 <h2 className="font-medium mb-1">Movimento do caixa (sessão atual)</h2>
@@ -122,6 +130,7 @@ function CaixaPage() {
                 <div className="flex justify-between"><span className="text-muted-foreground">Vendas em dinheiro</span><span className="font-medium">{brl(totals.dinheiro)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">(−) Valor de abertura</span><span className="font-medium">- {brl(current.openingAmount)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Vendas em dinheiro líquidas</span><span className="font-medium">{brl(cashSalesNet)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Caixinha acumulada</span><span className="font-medium">{brl(tipsTotal)}</span></div>
                 <div className="border-t border-border pt-2 flex justify-between"><span className="font-medium">Esperado em dinheiro no fechamento</span><span className="font-semibold text-primary">{brl(expectedCash)}</span></div>
                 <p className="text-xs text-muted-foreground">Cada pedido finalizado nesta sessão (dinheiro, PIX, débito ou crédito) entra automaticamente como venda. Ao fechar o caixa, os campos voltam a zero.</p>
               </CardContent>
@@ -169,6 +178,7 @@ function CaixaPage() {
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {methodLabel[m.method]} · {new Date(m.at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                            {m.tip > 0 && <> · caixinha {brl(m.tip)}</>}
                           </div>
                         </div>
                       </div>
