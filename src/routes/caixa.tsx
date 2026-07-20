@@ -35,11 +35,13 @@ function CaixaPage() {
 
   const totals = paymentsToday.reduce<Record<PaymentMethod, number>>(
     (acc, p) => {
-      acc[p.method] = (acc[p.method] ?? 0) + (p.amount - (p.change ?? 0));
+      acc[p.method] = (acc[p.method] ?? 0) + (p.amount - (p.change ?? 0) - (p.tip ?? 0));
       return acc;
     },
     { dinheiro: 0, pix: 0, debito: 0, credito: 0 },
   );
+
+  const tipsTotal = paymentsToday.reduce((s, p) => s + (p.tip ?? 0), 0);
 
   const expectedCash = current ? current.openingAmount + totals.dinheiro : 0;
   const cashSalesNet = totals.dinheiro - (current?.openingAmount ?? 0);
@@ -67,7 +69,8 @@ function CaixaPage() {
               orderType: o.type,
               tableNumber: o.tableNumber,
               method: p.method,
-              amount: p.amount - (p.change ?? 0),
+              amount: p.amount - (p.change ?? 0) - (p.tip ?? 0),
+              tip: p.tip ?? 0,
               at: p.at,
               closed: o.status === "fechado",
             })),
