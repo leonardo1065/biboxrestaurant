@@ -49,6 +49,7 @@ function PedidoPage() {
   const [payMethod, setPayMethod] = useState<PaymentMethod>("dinheiro");
   const [payAmount, setPayAmount] = useState("");
   const [payReceived, setPayReceived] = useState("");
+  const [excessMode, setExcessMode] = useState<"troco" | "caixinha">("troco");
   const [feeInput, setFeeInput] = useState<string>(order?.deliveryFee != null ? String(order.deliveryFee).replace(".", ",") : "");
   const [scanOpen, setScanOpen] = useState(false);
 
@@ -88,16 +89,22 @@ function PedidoPage() {
     if (amt <= 0) { toast.error("Informe o valor"); return; }
     let registeredAmount = amt;
     let change: number | undefined;
+    let tip: number | undefined;
     if (payMethod === "dinheiro" && payReceived) {
       const rec = Number(payReceived.replace(",", ".")) || 0;
       if (rec >= amt) {
         registeredAmount = rec;
-        change = rec - amt;
+        const diff = rec - amt;
+        if (diff > 0) {
+          if (excessMode === "caixinha") tip = diff;
+          else change = diff;
+        }
       }
     }
-    addPayment(order.id, payMethod, registeredAmount, change);
+    addPayment(order.id, payMethod, registeredAmount, change, tip);
     setPayAmount(""); setPayReceived("");
-    toast.success(`Pagamento ${payMethod} de ${brl(amt)}${change ? ` — troco ${brl(change)}` : ""}`);
+    const extra = change ? ` — troco ${brl(change)}` : tip ? ` — caixinha ${brl(tip)}` : "";
+    toast.success(`Pagamento ${payMethod} de ${brl(amt)}${extra}`);
     if (amt >= orderRemaining(order)) {
       setOrderStatus(order.id, "pago");
     }
