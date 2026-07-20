@@ -51,7 +51,7 @@ interface State {
   setOrderField: <K extends keyof Order>(orderId: string, key: K, value: Order[K]) => void;
   confirmOrder: (orderId: string) => void;
   acknowledgeReady: (orderId: string) => void;
-  addPayment: (orderId: string, method: PaymentMethod, amount: number, change?: number) => Payment;
+  addPayment: (orderId: string, method: PaymentMethod, amount: number, change?: number, tip?: number) => Payment;
   closeOrder: (orderId: string) => void;
 
   // cash
@@ -70,7 +70,7 @@ export const orderTotal = (o: Order) =>
   orderSubtotal(o) + orderTip(o) + (o.deliveryFee ?? 0);
 
 export const orderPaid = (o: Order) =>
-  o.payments.reduce((s, p) => s + p.amount - (p.change ?? 0), 0);
+  o.payments.reduce((s, p) => s + p.amount - (p.change ?? 0) - (p.tip ?? 0), 0);
 
 export const orderRemaining = (o: Order) => Math.max(0, orderTotal(o) - orderPaid(o));
 
@@ -222,8 +222,8 @@ export const useStore = create<State>()(
           orders: s.orders.map((o) => (o.id === orderId ? { ...o, notifiedReady: true } : o)),
         })),
 
-      addPayment: (orderId, method, amount, change) => {
-        const p: Payment = { id: uid(), method, amount, change, at: new Date().toISOString() };
+      addPayment: (orderId, method, amount, change, tip) => {
+        const p: Payment = { id: uid(), method, amount, change, tip, at: new Date().toISOString() };
         set((s) => ({
           orders: s.orders.map((o) =>
             o.id === orderId ? { ...o, payments: [...o.payments, p] } : o,
