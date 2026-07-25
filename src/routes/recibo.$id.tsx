@@ -65,9 +65,25 @@ function ReciboPage() {
           <Row l="Subtotal" v={brl(subtotal)} />
           {order.deliveryFee ? <Row l="Taxa entrega" v={brl(order.deliveryFee)} /> : null}
           <Row l="TOTAL" v={brl(total)} bold />
-          {order.payments.map((p) => (
-            <Row key={p.id} l={`Pag. ${p.method}${p.change ? ` (troco ${brl(p.change)})` : ""}`} v={brl(p.amount - (p.change ?? 0))} />
-          ))}
+          {order.payments.map((p) => {
+            const isCash = p.method === "dinheiro";
+            const hasExcess = isCash && ((p.change ?? 0) > 0 || (p.tip ?? 0) > 0);
+            return (
+              <div key={p.id} className="space-y-0.5">
+                <Row
+                  l={`Pag. ${p.method}`}
+                  v={brl(p.amount - (p.change ?? 0) - (p.tip ?? 0))}
+                />
+                {hasExcess && (
+                  <>
+                    <Row l="  Valor recebido" v={brl(p.amount)} />
+                    {(p.change ?? 0) > 0 && <Row l="  Troco devolvido" v={brl(p.change!)} />}
+                    {(p.tip ?? 0) > 0 && <Row l="  Caixinha" v={brl(p.tip!)} />}
+                  </>
+                )}
+              </div>
+            );
+          })}
           <Row l="Pago" v={brl(paid)} />
           {due > 0 && <Row l={isDelivery ? "A COBRAR NA ENTREGA" : "FALTA"} v={brl(due)} bold />}
         </div>
