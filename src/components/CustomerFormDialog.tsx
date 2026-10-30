@@ -138,7 +138,7 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-[calc(100%-1rem)] max-w-2xl max-h-[90dvh] overflow-y-auto overscroll-contain p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>{existing ? "Editar cliente" : "Cadastrar cliente"}</DialogTitle>
         </DialogHeader>
