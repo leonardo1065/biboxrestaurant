@@ -9,6 +9,7 @@ import { formatCep, formatPhone, onlyDigits } from "@/lib/format";
 import { lookupCep } from "@/lib/viacep";
 import type { Customer } from "@/lib/types";
 import { toast } from "sonner";
+import { MapPin, Search } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -57,9 +58,12 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
     }
   }, [open, existing, initialPhone]);
 
-  const onCepBlur = async () => {
-    const clean = onlyDigits(cep);
-    if (clean.length !== 8) return;
+  const searchCep = async (value = cep) => {
+    const clean = onlyDigits(value);
+    if (clean.length !== 8) {
+      toast.error("Informe um CEP com 8 dígitos");
+      return;
+    }
     setLoadingCep(true);
     const res = await lookupCep(clean);
     setLoadingCep(false);
@@ -71,6 +75,21 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
     setNeighborhood(res.bairro || "");
     setCity(res.localidade || "");
     setState(res.uf || "");
+  };
+
+  const openAddressInMaps = () => {
+    const address = [street, number, neighborhood, city, state, formatCep(cep)]
+      .filter(Boolean)
+      .join(", ");
+    if (!address) {
+      toast.error("Informe ao menos o CEP ou o endereço");
+      return;
+    }
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const save = () => {
@@ -145,13 +164,41 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
           </div>
           <div className="sm:col-span-2">
             <Label>CEP {loadingCep && <span className="text-xs text-muted-foreground">(buscando…)</span>}</Label>
-            <Input
-              ref={cepRef}
-              value={formatCep(cep)}
-              onChange={(e) => setCep(onlyDigits(e.target.value))}
-              onBlur={onCepBlur}
-              placeholder="00000-000"
-            />
+            <div className="flex gap-2">
+              <Input
+                ref={cepRef}
+                value={formatCep(cep)}
+                onChange={(e) => {
+                  const value = onlyDigits(e.target.value).slice(0, 8);
+                  setCep(value);
+                  if (value.length === 8) void searchCep(value);
+                }}
+                placeholder="00000-000"
+                inputMode="numeric"
+                className="min-w-0"
+              />
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                aria-label="Buscar endereço pelo CEP"
+                title="Buscar endereço pelo CEP"
+                disabled={loadingCep || onlyDigits(cep).length !== 8}
+                onClick={() => void searchCep()}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                aria-label="Abrir endereço no mapa"
+                title="Abrir endereço no mapa"
+                onClick={openAddressInMaps}
+              >
+                <MapPin className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div className="sm:col-span-3">
             <Label>Rua</Label>
