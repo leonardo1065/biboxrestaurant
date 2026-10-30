@@ -128,6 +128,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to={to}
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 md:py-2 rounded-md text-sm transition-colors",
+                  sidebarCollapsed && "md:justify-center md:px-0",
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
@@ -144,25 +145,27 @@ export function AppShell({ children }: { children: ReactNode }) {
               to="/usuarios"
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                sidebarCollapsed && "md:justify-center md:px-0",
                 location.pathname.startsWith("/usuarios")
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
-              <Shield className="w-4 h-4" />
-              <span>Usuários</span>
+              <Shield className="w-4 h-4 shrink-0" />
+              <span className={cn(sidebarCollapsed && "md:hidden")}>Usuários</span>
             </Link>
             <Link
               to="/funcionarios"
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                sidebarCollapsed && "md:justify-center md:px-0",
                 location.pathname.startsWith("/funcionarios")
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
-              <IdCard className="w-4 h-4" />
-              <span>Funcionários</span>
+              <IdCard className="w-4 h-4 shrink-0" />
+              <span className={cn(sidebarCollapsed && "md:hidden")}>Funcionários</span>
             </Link>
             <button
               onClick={async () => {
@@ -170,10 +173,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 await signOut();
                 navigate({ to: "/login", search: { signup: 1 } as never });
               }}
-              className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+              className={cn("w-full text-left flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground", sidebarCollapsed && "md:justify-center md:px-0")}
             >
-              <UserPlus className="w-4 h-4" />
-              <span>Cadastrar usuário</span>
+              <UserPlus className="w-4 h-4 shrink-0" />
+              <span className={cn(sidebarCollapsed && "md:hidden")}>Cadastrar usuário</span>
             </button>
             </>
           )}
@@ -192,7 +195,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <Button size="sm" variant="outline" className="w-full" onClick={() => { void signOut().then(() => navigate({ to: "/login" })); }}>
-            <LogOut className="w-3.5 h-3.5 mr-1.5" /> Sair
+            <LogOut className="w-3.5 h-3.5 md:mr-0 mr-1.5" /> <span className={cn(sidebarCollapsed && "md:hidden")}>Sair</span>
           </Button>
         </div>
       </aside>
