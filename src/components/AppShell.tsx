@@ -6,6 +6,10 @@ import {
   GlassWater,
   LayoutDashboard,
   LogOut,
+  Menu,
+  X,
+  PanelLeftClose,
+  PanelLeftOpen,
   Receipt,
   ScrollText,
   Shield,
@@ -15,13 +19,15 @@ import {
   Wallet,
   UserPlus,
 } from "lucide-react";
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, createContext, useContext, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, ROLE_LABEL } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
+
+const ShellContext = createContext<{ openMobileMenu: () => void }>({ openMobileMenu: () => {} });
 
 const nav = [
   { to: "/", label: "Painel", icon: LayoutDashboard },
@@ -41,10 +47,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const { loading, session, profile, roles, hasRole, signOut } = useAuth();
   const [now, setNow] = useState(() => new Date());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -76,23 +88,37 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
+    <ShellContext.Provider value={{ openMobileMenu: () => setMobileMenuOpen(true) }}>
     <div className="dark min-h-screen bg-background text-foreground flex">
-      <aside className="w-60 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
+      {mobileMenuOpen && <button aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-black/60 md:hidden" />}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-72 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col transition-all duration-200 md:sticky md:top-0 md:h-screen md:translate-x-0",
+        mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+        sidebarCollapsed ? "md:w-16" : "md:w-60",
+      )}>
         <div className="px-5 py-5 border-b border-sidebar-border">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
             <div className="w-9 h-9 rounded-md grid place-items-center text-primary-foreground" style={{ background: "var(--gradient-ember)" }}>
               <Flame className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-semibold leading-tight">Brasa POS</div>
-              <div className="text-xs text-muted-foreground">Restaurante</div>
+              <div className={cn("font-semibold leading-tight", sidebarCollapsed && "md:hidden")}>Brasa POS</div>
+              <div className={cn("text-xs text-muted-foreground", sidebarCollapsed && "md:hidden")}>Restaurante</div>
             </div>
+            </div>
+            <button type="button" aria-label={sidebarCollapsed ? "Expandir painel" : "Recolher painel"} title={sidebarCollapsed ? "Expandir painel" : "Recolher painel"} onClick={() => setSidebarCollapsed((value) => !value)} className="hidden md:grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground">
+              {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </button>
+            <button type="button" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} className="grid md:hidden h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent">
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <div className="mt-2 text-[11px] text-muted-foreground tabular-nums">
+          <div className={cn("mt-2 text-[11px] text-muted-foreground tabular-nums", sidebarCollapsed && "md:hidden")}>
             {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
-        <nav className="flex-1 p-2 space-y-1">
+        <nav className={cn("flex-1 p-2 space-y-1", sidebarCollapsed && "md:px-1")}>
           {nav.map(({ to, label, icon: Icon }) => {
             const active =
               to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
@@ -101,14 +127,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={to}
                 to={to}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  "flex items-center gap-3 px-3 py-3 md:py-2 rounded-md text-sm transition-colors",
                   active
                     ? "bg-sidebar-accent text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
                 )}
               >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className={cn(sidebarCollapsed && "md:hidden")}>{label}</span>
               </Link>
             );
           })}
@@ -152,8 +178,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             </>
           )}
         </nav>
-        <div className="p-3 border-t border-sidebar-border space-y-2">
-          <div className="text-xs">
+        <div className={cn("p-3 border-t border-sidebar-border space-y-2", sidebarCollapsed && "md:p-2")}>
+          <div className={cn("text-xs", sidebarCollapsed && "md:hidden")}>
             <div className="font-medium text-foreground truncate">{profile?.full_name ?? profile?.email ?? "Usuário"}</div>
             <div className="flex gap-1 flex-wrap mt-1">
               {roles.length === 0 ? (
@@ -170,8 +196,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Button>
         </div>
       </aside>
-      <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
+      <main className="flex-1 min-w-0 overflow-x-hidden"><ShellContext.Provider value={{ openMobileMenu: () => setMobileMenuOpen(true) }}>{children}</ShellContext.Provider></main>
     </div>
+    </ShellContext.Provider>
   );
 }
 
@@ -184,20 +211,26 @@ export function PageHeader({
   description?: string;
   actions?: ReactNode;
 }) {
+  const { openMobileMenu } = useContext(ShellContext);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
   return (
-    <div className="flex items-end justify-between gap-4 px-8 pt-8 pb-4">
-      <div>
+    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 px-4 sm:px-8 pt-5 sm:pt-8 pb-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <button type="button" aria-label="Abrir menu" onClick={openMobileMenu} className="grid md:hidden h-10 w-10 shrink-0 place-items-center rounded-md border border-border bg-card text-foreground">
+          <Menu className="h-5 w-5" />
+        </button>
+        <div>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {description && (
           <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
+        </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
         <div className="text-xs text-muted-foreground tabular-nums text-right">
           {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
         </div>
