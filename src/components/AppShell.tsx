@@ -215,6 +215,8 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   const { openMobileMenu } = useContext(ShellContext);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -238,6 +240,7 @@ export function PageHeader({
           {now.toLocaleDateString("pt-BR")} · {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
         </div>
         {actions && <div className="flex gap-2">{actions}</div>}
+        <Button size="sm" variant="outline" onClick={() => { void signOut().then(() => navigate({ to: "/login" })); }}><LogOut className="h-3.5 w-3.5 mr-1" />Sair</Button>
       </div>
     </div>
   );
