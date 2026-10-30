@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Brasa POS — Restaurante",
+  "short_name": "Brasa POS",
+  "description": "Sistema de gestão para restaurante: pedidos, mesas, cozinha e caixa.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
