@@ -163,8 +163,4 @@
   input, select, textarea, button {
     scroll-margin-bottom: 1rem;
   }
-
-  table {
-    min-width: 560px;
-  }
 }
