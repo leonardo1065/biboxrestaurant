@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Flame } from "lucide-react";
+import { Eye, EyeOff, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ function LoginPage() {
   const [tab, setTab] = useState<"signin" | "signup">(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -45,18 +46,29 @@ function LoginPage() {
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email,
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: name },
+        data: { full_name: name.trim() },
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Conta criada! Entrando…");
-    navigate({ to: "/" });
+    if (error) return toast.error(`Não foi possível criar a conta: ${error.message}`);
+
+    if (data.session) {
+      toast.success("Conta criada e acesso liberado!");
+      navigate({ to: "/" });
+      return;
+    }
+
+    setTab("signin");
+    setPassword("");
+    toast.success(
+      "Cadastro realizado! Confirme seu e-mail pelo link enviado para liberar o primeiro acesso. Seu perfil de Garçom já foi criado.",
+      { duration: 8000 },
+    );
   };
 
   const onForgot = async (e: React.FormEvent) => {
@@ -102,7 +114,25 @@ function LoginPage() {
                     <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                   </Field>
                   <Field label="Senha">
-                    <Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        aria-pressed={showPassword}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? "Entrando…" : "Entrar"}
@@ -126,7 +156,26 @@ function LoginPage() {
                     <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
                   </Field>
                   <Field label="Senha">
-                    <Input type="password" autoComplete="new-password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        minLength={6}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((visible) => !visible)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        aria-pressed={showPassword}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </Field>
                   <Button type="submit" className="w-full" disabled={busy}>
                     {busy ? "Criando…" : "Criar conta"}
