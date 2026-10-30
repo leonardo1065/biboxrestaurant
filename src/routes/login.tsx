@@ -36,11 +36,29 @@ function LoginPage() {
   const onSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Bem-vindo!");
-    navigate({ to: "/" });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error) {
+        const message = error.message.toLowerCase();
+        if (message.includes("invalid login credentials") || message.includes("invalid credentials")) {
+          toast.error("E-mail ou senha incorretos. Confira os dados ou use ‘Esqueci minha senha’ para criar uma nova senha.");
+        } else if (message.includes("email not confirmed")) {
+          toast.error("Este e-mail ainda não foi confirmado. Verifique sua caixa de entrada.");
+        } else {
+          toast.error("Não foi possível entrar: " + error.message);
+        }
+        return;
+      }
+      toast.success("Bem-vindo!");
+      navigate({ to: "/" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao entrar. Tente novamente.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onSignUp = async (e: React.FormEvent) => {
@@ -75,7 +93,7 @@ function LoginPage() {
     e.preventDefault();
     if (!forgotEmail) return toast.error("Informe o e-mail");
     setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setBusy(false);
