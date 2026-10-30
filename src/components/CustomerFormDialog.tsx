@@ -190,13 +190,15 @@ export function CustomerFormDialog({ open, onOpenChange, initialPhone, existing,
               </Button>
               <Button
                 type="button"
-                size="icon"
+                size="sm"
                 variant="outline"
-                aria-label="Abrir endereço no mapa"
-                title="Abrir endereço no mapa"
+                aria-label="Ver endereço no mapa"
+                title="Ver endereço no mapa"
                 onClick={openAddressInMaps}
+                className="shrink-0 gap-1.5 px-2"
               >
                 <MapPin className="h-4 w-4" />
+                <span className="hidden xs:inline">Ver no mapa</span>
               </Button>
             </div>
           </div>
